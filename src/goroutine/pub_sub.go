@@ -31,12 +31,10 @@ func sub2() {
 func RunPubSub() {
 	go sub()
 	go sub2()
-	for {
-		pub()
-		pub()
-		pub()
-		pub()
-		pub()
-		time.Sleep(3 * time.Second)
-	}
+	pub()
+	pub()
+	pub()
+	pub()
+	pub()
+	time.Sleep(3 * time.Second)
 }

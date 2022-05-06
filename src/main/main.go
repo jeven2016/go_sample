@@ -94,4 +94,10 @@ func main() {
 
 	routine.RunPubSub()
 
+	println("=========close channel============")
+	routine.RunCloseChannel()
+
+	println("=========single channel============")
+	routine.RunSingleChannel()
+
 }
