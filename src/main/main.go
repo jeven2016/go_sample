@@ -2,12 +2,7 @@ package main
 
 import (
 	"fmt"
-	routine "samples/src/goroutine"
-	"samples/src/jeven"
-	"samples/src/jeven/sub"
-	aliasSub "samples/src/jeven/sub/sub2"
 	"samples/src/time_test"
-	"time"
 )
 
 func init() {
@@ -25,90 +20,95 @@ func specialFunc(num int) func() int {
 }
 
 func main() {
+	/*
+		sf := specialFunc(1)
+		sf()
+		sf()
+		sf()
 
-	sf := specialFunc(1)
-	sf()
-	sf()
-	sf()
+		sub.Hello()
 
-	sub.Hello()
+		jeven.HelloJeven()
+		aliasSub.Hello()
 
-	jeven.HelloJeven()
-	aliasSub.Hello()
+		total := func(num1 int, num2 int) int {
+			return num1 + num2
+		}(1, 2)
 
-	total := func(num1 int, num2 int) int {
-		return num1 + num2
-	}(1, 2)
+		fmt.Printf("\ntotal value=%v", total)
 
-	fmt.Printf("\ntotal value=%v", total)
+		jeven.OperateString()
 
-	jeven.OperateString()
+		jeven.CatchError(1, 0)
+		jeven.CatchError(2, 1)
 
-	jeven.CatchError(1, 0)
-	jeven.CatchError(2, 1)
+		jeven.Constructor()
+		jeven.ConstructPerson()
+		jeven.ConstructPointer()
 
-	jeven.Constructor()
-	jeven.ConstructPerson()
-	jeven.ConstructPointer()
+		c := jeven.Car{
+			Name: "wzj",
+			Date: time.Now(),
+		}
 
-	c := jeven.Car{
-		Name: "wzj",
-		Date: time.Now(),
-	}
+		println(c.GetDesc())
+		c.ToString()
 
-	println(c.GetDesc())
-	c.ToString()
+		//--------------extend ------------
+		p := jeven.Parent{Name: "parent"}
+		child := jeven.Child{Parent: jeven.Parent{Name: "child"}, Age: 77}
 
-	//--------------extend ------------
-	p := jeven.Parent{Name: "parent"}
-	child := jeven.Child{Parent: jeven.Parent{Name: "child"}, Age: 77}
+		fmt.Printf("\nparent is %v\n", p)
+		fmt.Printf("child is %v\n", child)
+		child.ToString()
 
-	fmt.Printf("\nparent is %v\n", p)
-	fmt.Printf("child is %v\n", child)
-	child.ToString()
+		//--------------goroutine
+		jeven.MainFunc()
 
-	//--------------goroutine
-	jeven.MainFunc()
+		//------------new --------
+		jeven.TryNewSample()
 
-	//------------new --------
-	jeven.TryNewSample()
+		//-----------interface--------
+		jeven.DogSays()
 
-	//-----------interface--------
-	jeven.DogSays()
+		jeven.RunPanic()
 
-	jeven.RunPanic()
+		time.Sleep(500)
+		//--------- go routine
+		routine.RunSimpleGoRoutine()
+		routine.RunSimpleGoRoutine2()
 
-	time.Sleep(500)
-	//--------- go routine
-	routine.RunSimpleGoRoutine()
-	routine.RunSimpleGoRoutine2()
+		time.Sleep(500)
 
-	time.Sleep(500)
+		println("==============")
+		routine.TryLoopRoutine()
+		routine.TryLoopRoutine_correct()
 
-	println("==============")
-	routine.TryLoopRoutine()
-	routine.TryLoopRoutine_correct()
+		time.Sleep(500)
 
-	time.Sleep(500)
+		println("=========Pub-Sub============")
 
-	println("=========Pub-Sub============")
+		routine.RunPubSub()
 
-	routine.RunPubSub()
+		println("=========close channel============")
+		routine.RunCloseChannel()
 
-	println("=========close channel============")
-	routine.RunCloseChannel()
+		println("=========single channel============")
+		routine.RunSingleChannel()
 
-	println("=========single channel============")
-	routine.RunSingleChannel()
+		time.Sleep(3 * time.Second)
+		println("=========for range channel2============")
+		routine.RunSingleChannelFr()
 
-	time.Sleep(3 * time.Second)
-	println("=========for range channel2============")
-	routine.RunSingleChannelFr()
-
-	time.Sleep(3 * time.Second)
-	println("=========TrySelectChan============")
-	routine.TrySelectChan()
-
+		time.Sleep(3 * time.Second)
+		println("=========TrySelectChan============")
+		routine.TrySelectChan()
+	*/
 	println("========================")
 	time_test.TimeoutFunc()
+
+	println("=============time after===================")
+	time_test.TimeAfter()
+	time_test.Time_ticket()
+	time_test.Time_after()
 }

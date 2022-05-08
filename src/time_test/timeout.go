@@ -13,7 +13,7 @@ func TimeoutFunc() {
 		timer.Stop()
 	}
 
-	//执行两次，不重复创建timer
+	//执行两次，不重复创建timer, reset后定时器再次执行
 	timer2 := time.NewTimer(3 * time.Second)
 	times := 0
 
@@ -24,7 +24,7 @@ func TimeoutFunc() {
 				println("index", times)
 				times++
 				timer2.Reset(3 * time.Second)
-				println("rest timer3")
+				println("rest timer2")
 			}
 
 		}
@@ -32,6 +32,7 @@ func TimeoutFunc() {
 			stopped := timer2.Stop()
 			if stopped {
 				println("timer2 is stopped")
+				break
 			}
 		}
 	}
