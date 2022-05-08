@@ -6,6 +6,7 @@ import (
 	"samples/src/jeven"
 	"samples/src/jeven/sub"
 	aliasSub "samples/src/jeven/sub/sub2"
+	"samples/src/time_test"
 	"time"
 )
 
@@ -100,4 +101,14 @@ func main() {
 	println("=========single channel============")
 	routine.RunSingleChannel()
 
+	time.Sleep(3 * time.Second)
+	println("=========for range channel2============")
+	routine.RunSingleChannelFr()
+
+	time.Sleep(3 * time.Second)
+	println("=========TrySelectChan============")
+	routine.TrySelectChan()
+
+	println("========================")
+	time_test.TimeoutFunc()
 }
