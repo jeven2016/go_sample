@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"samples/src/time_test"
+	"samples/src/lock"
 )
 
 func init() {
@@ -104,11 +104,16 @@ func main() {
 		println("=========TrySelectChan============")
 		routine.TrySelectChan()
 	*/
-	println("========================")
-	time_test.TimeoutFunc()
+	//println("========================")
+	//time_test.TimeoutFunc()
+	//
+	//println("=============time after===================")
+	//time_test.TimeAfter()
+	//time_test.Time_ticket()
+	//time_test.Time_after()
 
-	println("=============time after===================")
-	time_test.TimeAfter()
-	time_test.Time_ticket()
-	time_test.Time_after()
+	println("=================Lock====================")
+	lock.MutexSample()
+	lock.RwLock()
+
 }
