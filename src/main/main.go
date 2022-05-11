@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"samples/src/lock"
+	"samples/src/directory_path"
 )
 
 func init() {
@@ -112,8 +112,10 @@ func main() {
 	//time_test.Time_ticket()
 	//time_test.Time_after()
 
-	println("=================Lock====================")
-	lock.MutexSample()
-	lock.RwLock()
+	//println("=================Lock====================")
+	//lock.MutexSample()
+	//lock.RwLock()
+
+	directory_path.Filepath_func()
 
 }
