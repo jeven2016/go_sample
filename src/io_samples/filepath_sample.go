@@ -1,6 +1,12 @@
-package directory_path
+package io_samples
 
-import "path/filepath"
+import (
+	"errors"
+	"fmt"
+	"io/fs"
+	"path/filepath"
+	"runtime/debug"
+)
 
 func Filepath_func() {
 	//Dir 返回路径中除去最后一个路径元素的部分，即该路径最后一个元素所在的目录。在使用 Split 去掉最后一个元素后，会简化路径并去掉末尾的斜杠。
@@ -66,4 +72,48 @@ func Filepath_func() {
 	//4. 剔除开始一个根路径的..路径名元素，即将路径开始处的"/.."替换为"/"（假设路径分隔符是'/'）
 	println("clean path=", filepath.Clean("/root/.././hello/and/who/../../test/."))
 
+	currentPath, _ := filepath.Abs("./")
+	println("current abs path=", currentPath)
+
+	//Glob函数返回所有匹配模式匹配字符串pattern的文件或者nil（如果没有匹配的文件）。
+	//pattern的语法和Match函数相同。pattern可以描述多层的名字，如/usr/*/bin/ed（假设路径分隔符是'/'）。
+	files, err := filepath.Glob("./*.mod")
+	if err == nil && files != nil {
+		println(fmt.Printf("find file via Glob: %v", files))
+	} else {
+		println(fmt.Errorf("couldn't find the go files: %v\n", err))
+	}
+
+	var index int = 0
+
+	ignoreRoot := ".git"
+	//Walk 文件目录, 显示只遍历三个path
+	newErr := filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
+		if index >= 10 {
+			return errors.New("interrupted now~~")
+		}
+		if err != nil {
+			println("Got an error:", path)
+			return err
+		}
+		if info.IsDir() {
+			println("directory:", path, ",infoName:", info.Name(), ",ignored:", info.Name() == ignoreRoot)
+
+			//忽略.git目录及其下文件
+			if info.Name() == ignoreRoot {
+				//忽略这个目录
+				return filepath.SkipDir
+			}
+		}
+		if !info.IsDir() {
+			println("file=", path)
+		}
+		index++
+		return nil
+	})
+
+	if newErr != nil {
+		println(fmt.Errorf("error=%v", newErr))
+		debug.PrintStack()
+	}
 }

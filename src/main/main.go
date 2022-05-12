@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"samples/src/directory_path"
+	"samples/src/io_samples"
 )
 
 func init() {
@@ -116,6 +116,6 @@ func main() {
 	//lock.MutexSample()
 	//lock.RwLock()
 
-	directory_path.Filepath_func()
+	io_samples.Filepath_func()
 
 }
