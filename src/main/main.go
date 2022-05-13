@@ -116,6 +116,8 @@ func main() {
 	//lock.MutexSample()
 	//lock.RwLock()
 
-	io_samples.Filepath_func()
+	//io_samples.Filepath_func()
+
+	io_samples.Ioutil_sample()
 
 }

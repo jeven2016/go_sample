@@ -30,3 +30,5 @@ package-lock.json
 /src/components/dist/
 /dist/
 /.gradle/
+./tmp*
+./temp*
