@@ -118,6 +118,7 @@ func main() {
 
 	//io_samples.Filepath_func()
 
-	io_samples.Ioutil_sample()
+	//io_samples.Ioutil_sample()
 
+	io_samples.FileAction()
 }
