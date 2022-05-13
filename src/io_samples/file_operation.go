@@ -81,7 +81,7 @@ func FileAction() {
 		log.Fatalln(err)
 	}
 
-	//拷贝文件，使用io
+	//拷贝文件，使用io. 也可以使用ioutil, Read & Write实现
 	src, _ := os.Open("./go.mod")
 	//添加os.O_APPEND后，会反复追加文件内容
 	dst, _ := os.OpenFile("./tempCopied.md", os.O_CREATE|os.O_WRONLY, os.ModePerm)
