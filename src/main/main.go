@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"samples/src/io_samples"
+	"samples/src/jeven"
 )
 
 func init() {
@@ -120,5 +120,6 @@ func main() {
 
 	//io_samples.Ioutil_sample()
 
-	io_samples.FileAction()
+	//io_samples.FileAction()
+	jeven.RunState()
 }
