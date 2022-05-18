@@ -1,0 +1,16 @@
+
+### Get with param
+GET http://localhost:8080/hello?name=test
+
+
+### GET with path variable
+GET http://localhost:8080/hello/person/1234?age=34
+Content-Type: application/json
+
+### GET /v1/message group
+GET http://localhost:8080/v1/message
+Content-Type: application/json
+
+### GET /v1/status group
+GET http://localhost:8080/v1/status
+Content-Type: application/json

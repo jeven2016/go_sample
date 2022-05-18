@@ -26,8 +26,8 @@ yarn-error.log*
 yarn.lock
 package-lock.json
 /react-wui-modern.iml
-/src/components/node_modules/
-/src/components/dist/
+/go_library/src/components/node_modules/
+/go_library/src/components/dist/
 /dist/
 /.gradle/
 ./tmp*
