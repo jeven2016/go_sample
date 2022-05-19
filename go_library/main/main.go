@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"samples/src/jeven"
+	"samples/jeven"
 )
 
 func init() {
