@@ -1,4 +1,4 @@
-package main
+package reflect_samples
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ type MyStruct struct {
 	Age  int32 `type:"int" author:"wang" `
 }
 
-func main() {
+func ReflectType() {
 	ptr := &MyStruct{Name: "who", Age: 33}
 
 	//名称
