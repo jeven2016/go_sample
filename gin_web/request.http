@@ -1,29 +1,29 @@
 ### Get html index page
-GET http://localhost:8080
+GET http://localhost:9999
 
 
 ### Get with param
-GET http://localhost:8080/hello?name=test
+GET http://localhost:9999/hello?name=test
 
 
 ### GET with path variable
-GET http://localhost:8080/hello/person/1234?age=34
+GET http://localhost:9999/hello/person/1234?age=34
 Content-Type: application/json
 
 ### GET /v1/message group
-GET http://localhost:8080/v1/message
+GET http://localhost:9999/v1/message
 Content-Type: application/json
 
 ### GET /v1/status group
-GET http://localhost:8080/v1/status
+GET http://localhost:9999/v1/status
 Content-Type: application/json
 
 ### GET /users
-GET http://localhost:8080/users
+GET http://localhost:9999/users
 Content-Type: application/json
 
 ### POST /users
-POST http://localhost:8080/users
+POST http://localhost:9999/users
 Content-Type: application/json
 
 {
@@ -31,3 +31,7 @@ Content-Type: application/json
   "age": 18,
   "description": "say something to you"
 }
+
+### Async call
+GET http://localhost:9999/async
+Content-Type: application/json

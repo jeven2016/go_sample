@@ -12,7 +12,7 @@ func main() {
 
 	route.RegisterRouter(engine)
 	//port is 8080 by default
-	if err := engine.Run(":8080"); err != nil {
+	if err := engine.Run(":9999"); err != nil {
 		println("error occurs", err.Error())
 	}
 }

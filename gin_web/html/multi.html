@@ -2,11 +2,11 @@
     <head><title>Hello Go</title></head>
     <body>
     <div>Hello Go!</div>
-        {{.message}}
-    <div>
-        <img src="../static/pic.jpg" width="200"/>
 
-        <form action="/upload" method="post" enctype="multipart/form-data">
+    <div>
+
+        <form action="/multi-upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file">
             <input type="file" name="file">
             <input type="submit" value="Upload">
         </form>
