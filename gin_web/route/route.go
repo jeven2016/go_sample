@@ -8,6 +8,20 @@ import (
 )
 
 func RegisterRouter(engine *gin.Engine) {
+
+	//全局捕捉错误
+	engine.Use(gin.CustomRecovery(func(c *gin.Context, err interface{}) {
+		if err != nil {
+			msg := err.(string)
+			c.JSON(http.StatusInternalServerError, gin.H{"msg": msg})
+		}
+		c.Abort()
+	}))
+
+	engine.GET("/panic", func(context *gin.Context) {
+		panic("panic now, haha ~~")
+	})
+
 	engine.GET("/", func(context *gin.Context) {
 		context.HTML(http.StatusOK, "index.html", gin.H{
 			"message": "who are you?",
@@ -115,4 +129,17 @@ func RegisterRouter(engine *gin.Engine) {
 
 		context.JSON(http.StatusOK, gin.H{"msg": "ok"})
 	})
+
+	// xml data
+	engine.POST("/xml", func(context *gin.Context) {
+		var person entity.Person
+		err := context.ShouldBindXML(&person)
+		if err != nil {
+			context.XML(http.StatusBadRequest, gin.H{"message": "data isn't in xml format", "error": err})
+			//context.Abort()
+			return
+		}
+		context.XML(http.StatusCreated, person)
+	})
+
 }

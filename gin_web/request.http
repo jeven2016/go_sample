@@ -1,6 +1,8 @@
 ### Get html index page
 GET http://localhost:9999
 
+### panic
+GET http://localhost:9999/panic
 
 ### Get with param
 GET http://localhost:9999/hello?name=test
@@ -35,3 +37,14 @@ Content-Type: application/json
 ### Async call
 GET http://localhost:9999/async
 Content-Type: application/json
+
+### POST /users
+POST http://localhost:9999/xml
+Content-Type: application/xml
+
+<root>
+  <i-gnored>sflsldf</i-gnored>
+  <n-ame>wzj</n-ame>
+  <a-ge>18</a-ge> 18,
+  <d-esc>say something to you</d-esc>
+</root>
