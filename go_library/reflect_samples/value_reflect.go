@@ -2,7 +2,7 @@ package reflect_samples
 
 import "reflect"
 
-//only run with go run value_reflect.go
+// ReflectValue only run with go run value_reflect.go
 func ReflectValue() {
 	intVal := int32(64)
 	floatVal := float32(4.0)

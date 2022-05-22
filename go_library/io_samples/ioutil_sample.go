@@ -46,5 +46,4 @@ func Ioutil_sample() {
 	if err != nil {
 		println("the final error", err)
 	}
-
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"runtime/debug"
 )
@@ -77,6 +78,9 @@ func Filepath_func() {
 
 	//Glob函数返回所有匹配模式匹配字符串pattern的文件或者nil（如果没有匹配的文件）。
 	//pattern的语法和Match函数相同。pattern可以描述多层的名字，如/usr/*/bin/ed（假设路径分隔符是'/'）。
+	//glob.glob的参数是一个只含有方括号、问号、正斜线的正则表达式，同时也是shell命令（就是那些我们用在cd命令后面的参数）。
+	//就像官方文档的第一句所说那样
+	//"The glob module finds all the pathnames matching a specified pattern according to the rules used by the Unix shell."
 	files, err := filepath.Glob("./*.mod")
 	if err == nil && files != nil {
 		println(fmt.Printf("find file via Glob: %v", files))
@@ -116,4 +120,6 @@ func Filepath_func() {
 		println(fmt.Errorf("error=%v", newErr))
 		debug.PrintStack()
 	}
+
+	os.RemoveAll("/home/jujucom/Desktop/backup2/folder/tmp")
 }

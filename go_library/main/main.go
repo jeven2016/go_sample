@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"samples/reflect_samples"
+	"samples/io_samples"
 )
 
 func init() {
@@ -116,13 +116,16 @@ func main() {
 	//lock.MutexSample()
 	//lock.RwLock()
 
-	//io_samples.Filepath_func()
+	io_samples.Filepath_func()
 
 	//io_samples.Ioutil_sample()
 
 	//io_samples.FileAction()
 	//jeven.RunState()
 
-	reflect_samples.ReflectType()
-	reflect_samples.ReflectValue()
+	//reflect_samples.ReflectType()
+	//reflect_samples.ReflectValue()
+
+	//ReplaceString()
+
 }
