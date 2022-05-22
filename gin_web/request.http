@@ -1,3 +1,6 @@
+### Get html index page
+GET http://localhost:8080
+
 
 ### Get with param
 GET http://localhost:8080/hello?name=test
@@ -14,3 +17,17 @@ Content-Type: application/json
 ### GET /v1/status group
 GET http://localhost:8080/v1/status
 Content-Type: application/json
+
+### GET /users
+GET http://localhost:8080/users
+Content-Type: application/json
+
+### POST /users
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "wzj",
+  "age": 18,
+  "description": "say something to you"
+}

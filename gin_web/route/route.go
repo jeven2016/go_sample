@@ -1,11 +1,17 @@
 package route
 
 import (
+	"gin_web/entity"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func RegisterRouter(engine *gin.Engine) {
+	engine.GET("/", func(context *gin.Context) {
+		context.HTML(http.StatusOK, "index.html", gin.H{
+			"message": "who are you?",
+		})
+	})
 
 	// http://localhost:8080/hello?name=XXX
 	engine.GET("/hello", func(context *gin.Context) {
@@ -36,5 +42,24 @@ func RegisterRouter(engine *gin.Engine) {
 			})
 		})
 	}
+
+	engine.GET("/users", func(context *gin.Context) {
+		p := entity.Person{
+			Ignored: "id",
+			Name:    "wzj",
+			Age:     18,
+			Desc:    "say something to you",
+		}
+		context.JSON(http.StatusCreated, p)
+	})
+
+	engine.POST("/users", func(context *gin.Context) {
+		var p entity.Person
+		if err := context.ShouldBindJSON(&p); err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"code": "bad request", "error": err})
+			return
+		}
+		context.JSON(http.StatusCreated, p)
+	})
 
 }
