@@ -14,6 +14,12 @@ func RegisterRouter(engine *gin.Engine) {
 		})
 	})
 
+	engine.GET("/multi.html", func(context *gin.Context) {
+		context.HTML(http.StatusOK, "multi.html", gin.H{
+			"message": "who are you?",
+		})
+	})
+
 	// http://localhost:8080/hello?name=XXX
 	engine.GET("/hello", func(context *gin.Context) {
 		if query, exists := context.GetQuery("name"); exists {
@@ -106,7 +112,7 @@ func RegisterRouter(engine *gin.Engine) {
 			return
 		}
 		for _, file := range form.File["file"] {
-			err := context.SaveUploadedFile(file, "./")
+			err := context.SaveUploadedFile(file, "./"+file.Filename)
 			if err != nil {
 				context.Status(http.StatusInternalServerError)
 				println(err)
