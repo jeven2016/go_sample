@@ -12,6 +12,7 @@ func main() {
 	engine.Static("/static", "./static") //静态资源映射，放置图片等静态资源
 
 	route.RegisterRouter(engine)
+	route.ConfigKcRoute(engine)
 	//port is 8080 by default
 	if err := engine.Run(":9999"); err != nil {
 		println("error occurs", err.Error())
