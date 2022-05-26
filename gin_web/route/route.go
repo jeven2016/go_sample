@@ -4,7 +4,6 @@ import (
 	"gin_web/entity"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -147,17 +146,6 @@ func RegisterRouter(engine *gin.Engine) {
 			return
 		}
 		context.XML(http.StatusCreated, person)
-	})
-
-	engine.GET("/auth/:realm", func(context *gin.Context) {
-		realm := context.Param("realm")
-
-		if len(realm) == 0 {
-			context.JSON(http.StatusBadRequest, gin.H{"message": "invalid message"})
-			return
-		}
-		context.Request.URL = &url.URL{Path: "http://localhost:8080/realms/zhongfu/protocol/openid-connect/auth?client_id=web1&redirect_uri=http%3A%2F%2F127.0.0.1%3A5500%2Findex.html&state=a6cbc18a-6466-49fc-93d5-0280ac9c30d5&response_mode=fragment&response_type=code&scope=openid&nonce=330d7bda-16f3-4ee9-8505-5e43d69c8d55&code_challenge=1tRPgt8bjbMCogNvb9iJp56WK3doJ94edOoYpCdmgPY&code_challenge_method=S256"}
-		context.Next()
 	})
 
 }

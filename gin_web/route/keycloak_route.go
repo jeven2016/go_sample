@@ -2,11 +2,11 @@ package route
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 func ConfigKcRoute(engine *gin.Engine) {
@@ -54,19 +54,26 @@ func ConfigKcRoute(engine *gin.Engine) {
 		//context.Background()
 		tokenUrl := "http://localhost:8080/realms/zhongfu/protocol/openid-connect/token"
 
-		client := resty.New()
+		//client := resty.New()
 
-		// POST JSON string
-		// No need to set content type, if you have client level setting
-		resp, err := client.R().SetQueryParams(map[string]string{
-			"code":      code,
-			"client_id": "web1",
-		}).SetHeader("Content-Type", "application/json").Post(tokenUrl)
+		values = url.Values{}
+		values.Add("grant_type", "authorization_code")
+		values.Add("code", code)
+		values.Add("client_id", "web1")
+		values.Add("scope", "openid")
+		values.Add("redirect_uri", "http://localhost:9090/callback")
 
+		request, err := http.NewRequest(http.MethodPost, tokenUrl, strings.NewReader(values.Encode()))
 		if err != nil {
 			log.Println("error /oauth:", err.Error())
 		}
+		client := &http.Client{}
 
+		resp, err := client.Do(request)
+		if err != nil {
+			log.Println("error /oauth:", err.Error())
+		}
 		log.Println(resp)
 	})
+
 }
