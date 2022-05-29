@@ -4,3 +4,6 @@
 
 ### 打包Gin静态资源
 https://pdf.us/2021/06/25/4147.html
+
+### Go Gui 
+https://github.com/wailsapp/wails/blob/master/README.zh-Hans.md
