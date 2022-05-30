@@ -32,3 +32,4 @@ package-lock.json
 /.gradle/
 ./tmp*
 ./temp*
+/mytools/node_modules/
