@@ -83,6 +83,12 @@ func TestOtherValues(t *testing.T) {
 	iVal, err := client.Get(ctx, "initialVal").Int()
 	assert.Equal(t, iVal, 5, "the initialVal should be 5")
 
+	//一开始不存在的key，进行增加
+	client.Incr(ctx, "noneExist")
+	client.Incr(ctx, "noneExist")
+	client.Incr(ctx, "noneExist")
+	client.Expire(ctx, "noneExist", 30*time.Second)
+
 	//返回多个key
 	array, err := client.MGet(ctx, "initialVal", "boolVal", "none").Result()
 	for _, val := range array {
@@ -92,10 +98,15 @@ func TestOtherValues(t *testing.T) {
 	}
 
 	//set only if the key doesn't exist, similar with lock
-
 	result, err := client.SetNX(ctx, "lockBy", "me", 60*time.Second).Result()
 	handle(err, "SetNX failed")
 	println(result)
+
+	//设置多个key
+	client.MSet(ctx, "key1", "value1", "key2", "value2")
+
+	//当不存在时，set多个key
+	client.MSetNX(ctx, "lock1", "lock1", "lock2", "lock2")
 }
 
 func handle(err error, msg string) {
