@@ -67,3 +67,9 @@ var assets embed.FS
 }
 ```
 
+### 修改文件后没有reloading
+默认情况下，wails使用build后的文件。但是create-react-app没有自动监控文件变化进行build文件输出的功能。
+所以需要引入第三方包cra-build-watch.
+
+
+
