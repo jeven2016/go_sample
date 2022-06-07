@@ -10,6 +10,7 @@ import (
 )
 
 //https://www.redis.net.cn/order/
+//https://blog.csdn.net/qq_31960623/article/details/117911710
 var ctx = context.Background()
 
 func client() (client *redis.Client) {
