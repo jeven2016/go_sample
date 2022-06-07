@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+//https://www.redis.net.cn/order/
 var ctx = context.Background()
 
 func client() (client *redis.Client) {
@@ -16,6 +17,7 @@ func client() (client *redis.Client) {
 		Addr:     "localhost:6379",
 		Password: "pwd", // no password set
 		DB:       0,     // use default DB
+		PoolSize: 10,    //默认一个CPU 10个连接
 	})
 	return client
 }
@@ -57,6 +59,7 @@ func TestOtherValues(t *testing.T) {
 	client := client()
 	defer client.Close()
 
+	//Redis SET 命令用于设置给定 key 的值。如果 key 已经存储其他值， SET 就覆写旧值，且无视类型。
 	//int
 	_, err := client.Set(ctx, "intVal", 23, 50*time.Second).Result()
 	handle(err, "failed to set int for key 'intVal'")
@@ -80,8 +83,12 @@ func TestOtherValues(t *testing.T) {
 	client.Incr(ctx, "initialVal")
 	client.IncrBy(ctx, "initialVal", 3)
 
-	iVal, err := client.Get(ctx, "initialVal").Int()
-	assert.Equal(t, iVal, 5, "the initialVal should be 5")
+	//减值
+	client.Decr(ctx, "initialVal")
+	client.DecrBy(ctx, "initialVal", 2)
+
+	//iVal, err := client.Get(ctx, "initialVal").Int()
+	//assert.Equal(t, iVal, 5, "the initialVal should be 5")
 
 	//一开始不存在的key，进行增加
 	client.Incr(ctx, "noneExist")
@@ -107,6 +114,24 @@ func TestOtherValues(t *testing.T) {
 
 	//当不存在时，set多个key
 	client.MSetNX(ctx, "lock1", "lock1", "lock2", "lock2")
+
+	//为指定的 key 设置值及其过期时间。如果 key 已经存在， SETEX 命令将会替换旧的值
+	client.SetEx(ctx, "exKey", "valueEx", 60*time.Second)
+
+	//获取指定 key 所储存的字符串值的长度。当 key 储存的不是字符串值时，返回一个错误。
+	i, err := client.StrLen(ctx, "exKey").Result()
+	println("exKey.len=", i)
+
+	//如果 key 已经存在并且是一个字符串， APPEND 命令将 value 追加到 key 原来的值的末尾。
+	client.Append(ctx, "exKey", ":AppendValue")
+	s, err := client.Get(ctx, "exKey").Result()
+	println("exKey=", s)
+
+	//命令用于设置指定 key 的值，并返回 key 旧的值。
+	empty, err := client.GetSet(ctx, "oldKey", "newValue").Result()
+	s3, err := client.GetSet(ctx, "oldKey", "newValue").Result()
+	println(empty, "==", s3)
+
 }
 
 func handle(err error, msg string) {
