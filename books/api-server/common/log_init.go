@@ -1,15 +1,33 @@
 package common
 
 import (
+	"api/global"
+	"github.com/gin-gonic/gin"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"time"
 )
+
+var logLevelMap = map[string]zapcore.Level{
+	"DEBUG":  zapcore.DebugLevel,
+	"INFO":   zapcore.InfoLevel,
+	"WARN":   zapcore.WarnLevel,
+	"ERROR":  zapcore.ErrorLevel,
+	"DPANIC": zapcore.DPanicLevel,
+	"PANIC":  zapcore.PanicLevel,
+	"FATAL":  zapcore.FatalLevel,
+}
 
 //https://blog.csdn.net/test1280/article/details/117266333
 func InitLog(cfg Config) *zap.Logger {
-	atomicLevel := setLogLevel(cfg.LogLevel)
+	level, ok := logLevelMap[cfg.ApiServerConfig.LogLevel]
+	if !ok {
+		panic("the log_level is invalid, it should be set with such value: DEBUG,INFO,WARN, ERROR,DPANIC,PANIC,FATAL.  ")
+	}
+
+	atomicLevel := zap.NewAtomicLevelAt(level)
 
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
@@ -22,8 +40,9 @@ func InitLog(cfg Config) *zap.Logger {
 		EncodeLevel:    zapcore.LowercaseLevelEncoder,
 		EncodeTime:     zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05.000"),
 		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.FullCallerEncoder, // 全路径编码器
-		EncodeName:     zapcore.FullNameEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder, // 短路径编码器
+		//EncodeCaller:   zapcore.FullCallerEncoder, // 全路径编码器
+		EncodeName: zapcore.FullNameEncoder,
 	}
 
 	// 日志轮转
@@ -43,7 +62,7 @@ func InitLog(cfg Config) *zap.Logger {
 	}
 
 	syncers := []zapcore.WriteSyncer{zapcore.AddSync(writer)}
-	if cfg.OutputConsole {
+	if cfg.ApiServerConfig.OutputConsole {
 		//同时输出到控制台
 		syncers = append(syncers, zapcore.AddSync(os.Stdout))
 	}
@@ -58,33 +77,35 @@ func InitLog(cfg Config) *zap.Logger {
 	options := []zap.Option{zap.AddCaller()}
 
 	// 开启文件及行号
-	if cfg.Dev {
+	if cfg.ApiServerConfig.Dev {
 		options = append(options, zap.Development())
 	}
 	// 设置默认携带的字段
-	options = append(options, zap.Fields(zap.String("serviceName", cfg.ServiceName)))
+	options = append(options, zap.Fields(zap.String("serviceName", cfg.ApiServerConfig.ServiceName)))
 	logger := zap.New(zapCore, options...)
+
+	global.Log = logger
 	return logger
 }
 
-func setLogLevel(logLevel string) zap.AtomicLevel {
-	atomicLevel := zap.NewAtomicLevel()
-	switch logLevel {
-	case "DEBUG":
-		atomicLevel.SetLevel(zapcore.DebugLevel)
-	case "INFO":
-		atomicLevel.SetLevel(zapcore.InfoLevel)
-	case "WARN":
-		atomicLevel.SetLevel(zapcore.WarnLevel)
-	case "ERROR":
-		atomicLevel.SetLevel(zapcore.ErrorLevel)
-	case "DPANIC":
-		atomicLevel.SetLevel(zapcore.DPanicLevel)
-	case "PANIC":
-		atomicLevel.SetLevel(zapcore.PanicLevel)
-	case "FATAL":
-		atomicLevel.SetLevel(zapcore.FatalLevel)
-	}
+// GinLogger 接收gin框架默认的日志
+func GinLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		query := c.Request.URL.RawQuery
+		c.Next()
 
-	return atomicLevel
+		cost := time.Since(start)
+		global.Log.Info(path,
+			zap.Int("status", c.Writer.Status()),
+			zap.String("method", c.Request.Method),
+			zap.String("path", path),
+			zap.String("query", query),
+			zap.String("ip", c.ClientIP()),
+			zap.String("user-agent", c.Request.UserAgent()),
+			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
+			zap.Duration("cost", cost),
+		)
+	}
 }

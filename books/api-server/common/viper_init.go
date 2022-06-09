@@ -13,7 +13,7 @@ func InitViper(configFilePath string) (*Config, error) {
 	if len(configFilePath) == 0 {
 		viper.SetConfigName("api")
 		viper.SetConfigType("ini")
-		viper.AddConfigPath(".")
+		viper.AddConfigPath("./conf")
 		viper.AddConfigPath("/etc/books/")
 	} else {
 		viper.SetConfigFile(configFilePath)

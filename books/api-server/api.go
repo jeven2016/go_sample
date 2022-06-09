@@ -2,9 +2,9 @@ package main
 
 import (
 	"api/common"
+	"api/rest"
 	"fmt"
 	flag "github.com/spf13/pflag"
-	"go.uber.org/zap"
 )
 
 var configPath *string = flag.StringP("config", "c", "", "The path of defined config file")
@@ -20,11 +20,8 @@ func main() {
 	}
 
 	logger := common.InitLog(*config)
-	defer func(logger *zap.Logger) {
-		err := logger.Sync()
-		if err != nil {
-			logger.Error("Some logs aren't flushed into log file")
-		}
-	}(logger)
+	defer logger.Sync()
+
+	rest.InitEngine(config)
 
 }
