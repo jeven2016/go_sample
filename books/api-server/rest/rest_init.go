@@ -18,6 +18,7 @@ import (
 func InitEngine(config *common.Config) {
 	engine := gin.Default()
 	engine.Use(common.GinLogger(), GinRecovery(true))
+	gin.SetMode(gin.ReleaseMode)
 	registerRoutes(engine)
 
 	bind := fmt.Sprintf("%v:%v", config.ApiServerConfig.BindAddress, config.ApiServerConfig.Port)
