@@ -20,7 +20,6 @@ var logLevelMap = map[string]zapcore.Level{
 	"FATAL":  zapcore.FatalLevel,
 }
 
-//https://blog.csdn.net/test1280/article/details/117266333
 func InitLog(cfg Config) *zap.Logger {
 	level, ok := logLevelMap[cfg.ApiServerConfig.LogLevel]
 	if !ok {
