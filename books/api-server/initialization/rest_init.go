@@ -10,6 +10,7 @@ func SetupEngine(config *common.Config) *gin.Engine {
 	engine := gin.Default()
 	engine.Use(common.GinLogger(), GinRecovery(true))
 	//gin.SetMode(gin.ReleaseMode)
+	api.SetupServices()
 	registerRoutes(engine)
 	return engine
 }

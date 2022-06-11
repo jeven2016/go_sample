@@ -11,7 +11,7 @@ import (
 var once sync.Once
 var catalogService *service.CatalogService
 
-func setupServices() {
+func SetupServices() {
 	once.Do(func() {
 		log := global.Log
 		catalogService = service.New(log)
