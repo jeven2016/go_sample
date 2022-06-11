@@ -30,6 +30,7 @@ func main() {
 		logger.Info("the configuration parsed", zap.String("content", json))
 	}
 
+	//初始化Mongodb
 	initialization.SetupMongodb(config)
 
 	//web初始化
