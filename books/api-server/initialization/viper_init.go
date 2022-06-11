@@ -1,15 +1,16 @@
-package common
+package initialization
 
 import (
+	"api/common"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"log"
 )
 
-var config = new(Config)
+var config = new(common.Config)
 
-func InitViper(configFilePath string) (*Config, error) {
+func SetupViper(configFilePath string) (*common.Config, error) {
 	if len(configFilePath) == 0 {
 		viper.SetConfigName("api")
 		viper.SetConfigType("ini")

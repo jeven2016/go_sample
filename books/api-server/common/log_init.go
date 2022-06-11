@@ -20,7 +20,7 @@ var logLevelMap = map[string]zapcore.Level{
 	"FATAL":  zapcore.FatalLevel,
 }
 
-func InitLog(cfg Config) *zap.Logger {
+func SetupLog(cfg Config) *zap.Logger {
 	level, ok := logLevelMap[cfg.ApiServerConfig.LogLevel]
 	if !ok {
 		panic("the log_level is invalid, it should be set with such value: DEBUG,INFO,WARN, ERROR,DPANIC,PANIC,FATAL.  ")

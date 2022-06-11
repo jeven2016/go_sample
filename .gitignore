@@ -33,3 +33,4 @@ package-lock.json
 ./tmp*
 ./temp*
 /mytools/node_modules/
+*.log

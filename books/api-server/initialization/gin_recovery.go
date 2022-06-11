@@ -1,4 +1,4 @@
-package rest
+package initialization
 
 import (
 	"api/global"
