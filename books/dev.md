@@ -48,6 +48,7 @@ Error,panic级别的记录，会在堆栈中跟踪文件，warn不会
 
 ### Mongodb
 reference: https://www.mongodb.com/docs/drivers/go/current/fundamentals/connection/  
+https://learnku.com/articles/61966
 https://blog.51cto.com/u_12970189/2547519
 https://onejav.com/actress/Eimi%20Fukada?page=2
 https://www.cartoon18.com/
