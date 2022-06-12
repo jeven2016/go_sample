@@ -1,7 +1,6 @@
 package initialization
 
 import (
-	"api/global"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net"
@@ -13,7 +12,7 @@ import (
 )
 
 // GinRecovery recover掉项目可能出现的panic，并使用zap记录相关日志
-func GinRecovery(stack bool) gin.HandlerFunc {
+func GinRecovery(stack bool, log *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -30,7 +29,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					global.Log.Error(c.Request.URL.Path,
+					log.Error(c.Request.URL.Path,
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -41,13 +40,13 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					global.Log.Error("[Recovery from panic]",
+					log.Error("[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					global.Log.Error("[Recovery from panic]",
+					log.Error("[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)

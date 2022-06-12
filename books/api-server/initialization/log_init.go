@@ -1,7 +1,7 @@
-package common
+package initialization
 
 import (
-	"api/global"
+	"api/common"
 	"github.com/gin-gonic/gin"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
@@ -20,10 +20,10 @@ var logLevelMap = map[string]zapcore.Level{
 	"FATAL":  zapcore.FatalLevel,
 }
 
-func SetupLog(cfg Config) *zap.Logger {
+func SetupLog(cfg common.Config) *zap.Logger {
 	level, ok := logLevelMap[cfg.ApiServerConfig.LogLevel]
 	if !ok {
-		panic("the log_level is invalid, it should be set with such value: DEBUG,INFO,WARN, ERROR,DPANIC,PANIC,FATAL.  ")
+		panic("the log_level is invalid, it only supports: DEBUG,INFO,WARN, ERROR,DPANIC,PANIC,FATAL.  ")
 	}
 
 	atomicLevel := zap.NewAtomicLevelAt(level)
@@ -81,14 +81,11 @@ func SetupLog(cfg Config) *zap.Logger {
 	}
 	// 设置默认携带的字段
 	options = append(options, zap.Fields(zap.String("serviceName", cfg.ApiServerConfig.ServiceName)))
-	logger := zap.New(zapCore, options...)
-
-	global.Log = logger
-	return logger
+	return zap.New(zapCore, options...)
 }
 
 // GinLogger 接收gin框架默认的日志
-func GinLogger() gin.HandlerFunc {
+func GinLogger(log *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
@@ -96,7 +93,7 @@ func GinLogger() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start)
-		global.Log.Info(path,
+		log.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
 			zap.String("path", path),

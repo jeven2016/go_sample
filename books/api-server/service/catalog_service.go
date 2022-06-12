@@ -1,8 +1,8 @@
 package service
 
 import (
+	"api/common"
 	"api/entity"
-	"api/global"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,32 +19,33 @@ type CatalogService struct {
 	log     *zap.Logger
 }
 
-func New(log *zap.Logger) *CatalogService {
+func NewCatalogService(app *common.App) *CatalogService {
 	return &CatalogService{
-		catalog: global.Db.Collection("catalog"),
-		log:     log,
+		catalog: app.Db.Collection("catalog"),
+		log:     app.Log,
 	}
 }
 
-func (c *CatalogService) List() []*entity.BookCatalog {
+func (c *CatalogService) List() ([]*entity.BookCatalog, error) {
 	var results []*entity.BookCatalog
 	findOpts := options.Find()
 	findOpts.SetLimit(15)
 
-	cursor, err := c.catalog.Find(context.Background(), bson.D{}, findOpts)
+	cursor, err := c.catalog.Find(context.Background(), bson.M{}, findOpts)
 	defer cursor.Close(context.TODO())
 	if err != nil {
 		c.log.Warn("An error occurs while getting a list of catalogs", zap.Error(err))
-		return results
+		return results, err
 	}
 
 	for cursor.Next(context.TODO()) {
 		var catalog *entity.BookCatalog
-		err := cursor.Decode(catalog)
+		err := cursor.Decode(&catalog)
 		if err != nil {
 			c.log.Warn("An error occurs while decoding a book catalog", zap.Error(err))
+			return results, err
 		}
 		results = append(results, catalog)
 	}
-	return results
+	return results, nil
 }

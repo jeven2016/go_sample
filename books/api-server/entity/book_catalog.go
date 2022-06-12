@@ -5,6 +5,7 @@ import (
 )
 
 type BookCatalog struct {
+	Id           string `bson:"_id"`
 	ParentId     string `bson:"parentId"`
 	Name         string `bson:"name"`
 	Order        int32  `bson:"order"`

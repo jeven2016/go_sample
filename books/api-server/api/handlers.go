@@ -1,7 +1,8 @@
 package api
 
 import (
-	"api/global"
+	"api/common"
+	"api/entity"
 	"api/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,11 +11,12 @@ import (
 
 var once sync.Once
 var catalogService *service.CatalogService
+var articleService *service.ArticleService
 
-func SetupServices() {
+func SetupServices(app *common.App) {
 	once.Do(func() {
-		log := global.Log
-		catalogService = service.New(log)
+		catalogService = service.NewCatalogService(app)
+		articleService = service.NewArticleService(app)
 	})
 
 }
@@ -24,6 +26,32 @@ func HandleIndex(context *gin.Context) {
 }
 
 func ListCatalogs(context *gin.Context) {
-	list := catalogService.List()
+	catalogs, err := catalogService.List()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"payload": []entity.BookCatalog{},
+		})
+		return
+	}
+	list := catalogs
 	context.JSON(http.StatusOK, gin.H{"payload": list})
+}
+
+func ListArticles(context *gin.Context) {
+	articleId := context.Param("articleId")
+	if len(articleId) == 0 {
+		context.JSON(http.StatusBadRequest, gin.H{
+			"error": "the catalog id is required",
+		})
+		return
+	}
+	articleEnttiy, err := articleService.FindById(articleId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "An internal error encountered",
+			"payload": articleEnttiy,
+		})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"payload": articleEnttiy})
 }
