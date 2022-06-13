@@ -20,7 +20,10 @@ func registerRoutes(engine *gin.Engine, log *zap.Logger) {
 	root := engine.Group("/api/v1", func(context *gin.Context) {
 		log.Info("A request incoming")
 	})
-	root.GET("/", api.HandleIndex)
-	catalog := root.Group("catalogs", api.ListCatalogs)
-	catalog.GET(":catalogId/articles", api.ListArticles)
+	catalog := root.Group("catalogs")
+	{
+		catalog.GET("/", api.ListCatalogs)
+		catalog.GET("/:catalogId/articles", api.ListArticles)
+	}
+	root.GET("/articles/:articleId", api.FindArticleById)
 }

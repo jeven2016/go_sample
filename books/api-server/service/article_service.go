@@ -34,7 +34,8 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 func (artSrv *ArticleService) List(catalogId string) ([]*entity.Article, error) {
 	var results []*entity.Article
 	findOpt := options.Find()
-	findOpt.SetLimit(1)
+	findOpt.SetLimit(10)
+	findOpt.SetProjection(bson.M{"content": 0}) //不包含content内容
 
 	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catalogId}, findOpt)
 	if err != nil {

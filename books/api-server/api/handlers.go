@@ -55,3 +55,7 @@ func ListArticles(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"payload": articleEnttiy})
 }
+
+func FindArticleById(context *gin.Context) *entity.Article {
+
+}
