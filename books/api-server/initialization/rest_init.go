@@ -21,6 +21,6 @@ func registerRoutes(engine *gin.Engine, log *zap.Logger) {
 		log.Info("A request incoming")
 	})
 	root.GET("/", api.HandleIndex)
-	root.GET("/catalogs", api.ListCatalogs)
-	root.GET("/articles/:articleId", api.ListArticles)
+	catalog := root.Group("catalogs", api.ListCatalogs)
+	catalog.GET(":catalogId/articles", api.ListArticles)
 }

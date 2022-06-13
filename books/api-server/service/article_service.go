@@ -6,6 +6,7 @@ import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +31,29 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 	return articleEntity, err
 }
 
-func (artSrv *ArticleService) List() ([]*entity.Article, error) {
+func (artSrv *ArticleService) List(catalogId string) ([]*entity.Article, error) {
 	var results []*entity.Article
+	findOpt := options.Find()
+	findOpt.SetLimit(1)
+
+	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catalogId}, findOpt)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+	if err != nil {
+		artSrv.log.Warn("An error occurs while getting a list of articles", zap.Error(err))
+		return results, err
+	}
+
+	for cursor.Next(context.TODO()) {
+		var article *entity.Article
+		err := cursor.Decode(&article)
+		if err != nil {
+			artSrv.log.Warn("An error occurs while decoding a book article", zap.Error(err))
+			return results, err
+		}
+		results = append(results, article)
+	}
 	return results, nil
 }

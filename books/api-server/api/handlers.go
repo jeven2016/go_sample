@@ -38,14 +38,14 @@ func ListCatalogs(context *gin.Context) {
 }
 
 func ListArticles(context *gin.Context) {
-	articleId := context.Param("articleId")
-	if len(articleId) == 0 {
+	catalogId := context.Param("catalogId")
+	if len(catalogId) == 0 {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"error": "the catalog id is required",
 		})
 		return
 	}
-	articleEnttiy, err := articleService.FindById(articleId)
+	articleEnttiy, err := articleService.List(catalogId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "An internal error encountered",
