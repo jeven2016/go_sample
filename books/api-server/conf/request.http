@@ -3,9 +3,9 @@ GET http://localhost:9999/api/v1/catalogs
 Content-Type: application/json
 
 ### get a list of articles for catalog
-GET http://localhost:9999/api/v1/catalogs/61acab6ec032233fb16d907f/articles
+GET http://localhost:9999/api/v1/catalogs/61b577f72011677cbe91c540/articles
 Content-Type: application/json
 
 ### get an article
-GET http://localhost:9999/api/v1/articles/61acd142b7a17f1b4ad3ba37
+GET http://localhost:9999/api/v1/articles/61b5784f2011677cbe91c54a
 Content-Type: application/json

@@ -24,9 +24,15 @@ func NewArticleService(app *common.App) *ArticleService {
 
 func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 	articleEntity := &entity.Article{}
-	err := artSrv.article.FindOne(context.TODO(), bson.M{"Id": id}).Decode(articleEntity)
+	result := artSrv.article.FindOne(context.TODO(), bson.M{"_id": id})
+	err := result.Err()
 	if err != nil {
-		artSrv.log.Warn("error occurs findById(id)", zap.String("id", id), zap.Error(err))
+		artSrv.log.Warn("error occurs when findById(id)", zap.String("id", id), zap.Error(err))
+		return nil, err
+	}
+	err = result.Decode(articleEntity)
+	if err != nil {
+		artSrv.log.Warn("error occurs when Decode(articleEntity)", zap.String("id", id), zap.Error(err))
 	}
 	return articleEntity, err
 }

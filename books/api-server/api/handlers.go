@@ -58,13 +58,12 @@ func ListArticles(context *gin.Context) {
 
 func FindArticleById(context *gin.Context) {
 	articleId := context.Param("articleId")
-	articleEnttiy, err := articleService.FindById(articleId)
+	entity, err := articleService.FindById(articleId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "An internal error encountered",
-			"payload": articleEnttiy,
+			"error": "An internal error encountered",
 		})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"payload": articleEnttiy})
+	context.JSON(http.StatusOK, gin.H{"payload": entity})
 }
