@@ -62,5 +62,6 @@ func (artSrv *ArticleService) List(catalogId string) ([]*entity.Article, error) 
 		}
 		results = append(results, article)
 	}
+
 	return results, nil
 }
