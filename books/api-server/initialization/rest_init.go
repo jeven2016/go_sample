@@ -5,6 +5,7 @@ import (
 	"api/common"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 func SetupEngine(config *common.Config, app *common.App) *gin.Engine {
@@ -26,4 +27,6 @@ func registerRoutes(engine *gin.Engine, log *zap.Logger) {
 		catalog.GET("/:catalogId/articles", api.ListArticles)
 	}
 	root.GET("/articles/:articleId", api.FindArticleById)
+	engine.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
+
 }

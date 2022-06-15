@@ -65,3 +65,5 @@ D：BSON文档。此类型应用在顺序很重要的场景下，例如MongoDB�
 M：无序map。除不保留顺序外，与D相同。
 A：一个BSON数组。
 E：D中的单个元素。
+
+打包： https://blog.csdn.net/yhflyl/article/details/120649170
