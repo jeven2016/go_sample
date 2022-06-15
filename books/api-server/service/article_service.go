@@ -2,6 +2,7 @@ package service
 
 import (
 	"api/common"
+	"api/dto"
 	"api/entity"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,7 +38,7 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 	return articleEntity, err
 }
 
-func (artSrv *ArticleService) List(catalogId string) ([]*entity.Article, error) {
+func (artSrv *ArticleService) List(catalogId string) ([]*dto.ArticlePageResponse, error) {
 	var results []*entity.Article
 	findOpt := options.Find()
 	findOpt.SetLimit(10)
@@ -50,7 +51,7 @@ func (artSrv *ArticleService) List(catalogId string) ([]*entity.Article, error) 
 	defer cursor.Close(context.TODO())
 	if err != nil {
 		artSrv.log.Warn("An error occurs while getting a list of articles", zap.Error(err))
-		return results, err
+		return nil, err
 	}
 
 	for cursor.Next(context.TODO()) {
@@ -58,10 +59,12 @@ func (artSrv *ArticleService) List(catalogId string) ([]*entity.Article, error) 
 		err := cursor.Decode(&article)
 		if err != nil {
 			artSrv.log.Warn("An error occurs while decoding a book article", zap.Error(err))
-			return results, err
+			return nil, err
 		}
 		results = append(results, article)
 	}
 
-	return results, nil
+	//查询总条数
+
+	return nil, nil
 }

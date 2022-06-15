@@ -16,6 +16,9 @@ go get github.com/spf13/viper
 # 高性能日志
 go get -u go.uber.org/zap
 go get github.com/natefinch/lumberjack
+
+# gin 校验
+https://github.com/go-playground/validator
 ```
 
 #### Zap log

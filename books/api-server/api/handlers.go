@@ -2,6 +2,7 @@ package api
 
 import (
 	"api/common"
+	"api/dto"
 	"api/entity"
 	"api/service"
 	"github.com/gin-gonic/gin"
@@ -26,34 +27,46 @@ func HandleIndex(context *gin.Context) {
 }
 
 func ListCatalogs(context *gin.Context) {
-	catalogs, err := catalogService.List()
+	catalogList, err := catalogService.List()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
 			"payload": []entity.BookCatalog{},
 		})
 		return
 	}
-	list := catalogs
+	list := catalogList
 	context.JSON(http.StatusOK, gin.H{"payload": list})
 }
 
-func ListArticles(context *gin.Context) {
-	catalogId := context.Param("catalogId")
+func ListArticles(c *gin.Context) {
+	var articlePageRequest dto.PageRequest
+	err := c.ShouldBindQuery(&articlePageRequest)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	catalogId := c.Param("catalogId")
 	if len(catalogId) == 0 {
-		context.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "the catalog id is required",
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+	return
+
 	articleEnttiy, err := articleService.List(catalogId)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "An internal error encountered",
 			"payload": articleEnttiy,
 		})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"payload": articleEnttiy})
+	c.JSON(http.StatusOK, gin.H{"payload": articleEnttiy})
 }
 
 func FindArticleById(context *gin.Context) {
