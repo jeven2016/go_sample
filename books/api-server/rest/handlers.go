@@ -5,6 +5,7 @@ import (
 	"api/dto"
 	"api/entity"
 	"api/service"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -64,7 +65,7 @@ func FindArticleById(c *gin.Context) {
 	articleId := c.Param("articleId")
 	entity, err := articleService.FindById(articleId)
 	if err != nil {
-		if err.Error() == common.NotFound.Error() {
+		if errors.Is(err, common.NotFound) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}

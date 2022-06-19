@@ -5,6 +5,7 @@ import (
 	"api/dto"
 	"api/entity"
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -30,7 +31,7 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 	err := result.Err()
 	if err != nil {
 		artSrv.log.Warn("Cannot findById(id)", zap.String("id", id), zap.Error(err))
-		if err.Error() == mongo.ErrNoDocuments.Error() {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, common.NotFound
 		}
 		return nil, err
