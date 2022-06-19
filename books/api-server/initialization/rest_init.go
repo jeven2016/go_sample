@@ -1,18 +1,18 @@
 package initialization
 
 import (
-	"api/api"
 	"api/common"
+	"api/rest"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 func SetupEngine(config *common.Config, app *common.App) *gin.Engine {
-	engine := gin.Default()
+	var engine = gin.Default()
 	engine.Use(GinLogger(app.Log), GinRecovery(true, app.Log))
 	//gin.SetMode(gin.ReleaseMode)
-	api.SetupServices(app)
+	rest.SetupServices(app)
 	registerRoutes(engine, app.Log)
 	return engine
 }
@@ -23,10 +23,10 @@ func registerRoutes(engine *gin.Engine, log *zap.Logger) {
 	})
 	catalog := root.Group("catalogs")
 	{
-		catalog.GET("/", api.ListCatalogs)
-		catalog.GET("/:catalogId/articles", api.ListArticles)
+		catalog.GET("/", rest.ListCatalogs)
+		catalog.GET("/:catalogId/articles", rest.ListArticles)
 	}
-	root.GET("/articles/:articleId", api.FindArticleById)
+	root.GET("/articles/:articleId", rest.FindArticleById)
 	engine.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 
 }

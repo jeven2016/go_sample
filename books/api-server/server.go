@@ -50,6 +50,11 @@ func main() {
 		app.Db = db
 	}
 
+	//校验错误提示国际化
+	if err := initialization.InitTrans("zh"); err != nil {
+		app.Log.Warn("Failed to initialize i18 resources")
+	}
+
 	//web初始化
 	engine := initialization.SetupEngine(config, app)
 

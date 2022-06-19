@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
+	"math"
 )
 
 type ArticleService struct {
@@ -38,10 +39,11 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 	return articleEntity, err
 }
 
-func (artSrv *ArticleService) List(catalogId string) ([]*dto.ArticlePageResponse, error) {
+func (artSrv *ArticleService) List(catalogId string, pageRequest *dto.PageRequest) (*dto.ArticlePageResponse, error) {
 	var results []*entity.Article
 	findOpt := options.Find()
-	findOpt.SetLimit(10)
+	findOpt.SetLimit(int64(pageRequest.PageSize))
+	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
 	findOpt.SetProjection(bson.M{"content": 0}) //不包含content内容
 
 	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catalogId}, findOpt)
@@ -65,6 +67,24 @@ func (artSrv *ArticleService) List(catalogId string) ([]*dto.ArticlePageResponse
 	}
 
 	//查询总条数
+	countOptions := &options.CountOptions{}
+	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"catalogId": catalogId}, countOptions)
+	if err != nil {
+		artSrv.log.Warn("An error occurs while counting articles", zap.Error(err))
+		return nil, err
+	}
 
-	return nil, nil
+	resp := &dto.ArticlePageResponse{
+		Page:         pageRequest.Page,
+		TotalPage:    int32(math.Ceil(float64(count) / float64(pageRequest.PageSize))),
+		PageSize:     pageRequest.PageSize,
+		TotalRecords: int32(count),
+		Result: dto.Result{
+			Message: "ok",
+			Payload: results,
+			Errors:  nil,
+		},
+	}
+
+	return resp, nil
 }

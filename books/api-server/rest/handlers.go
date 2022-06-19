@@ -1,4 +1,4 @@
-package api
+package rest
 
 import (
 	"api/common"
@@ -6,6 +6,7 @@ import (
 	"api/entity"
 	"api/service"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"sync"
 )
@@ -22,10 +23,6 @@ func SetupServices(app *common.App) {
 
 }
 
-func HandleIndex(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{"msg": "show me the money"})
-}
-
 func ListCatalogs(context *gin.Context) {
 	catalogList, err := catalogService.List()
 	if err != nil {
@@ -39,10 +36,11 @@ func ListCatalogs(context *gin.Context) {
 }
 
 func ListArticles(c *gin.Context) {
-	var articlePageRequest dto.PageRequest
-	err := c.ShouldBindQuery(&articlePageRequest)
+	var articlePageRequest *dto.PageRequest
+	err := c.ShouldBindQuery(articlePageRequest)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		errs := err.(validator.ValidationErrors)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common.Trans)})
 		return
 	}
 
@@ -53,20 +51,13 @@ func ListArticles(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
-	return
 
-	articleEnttiy, err := articleService.List(catalogId)
+	resp, err := articleService.List(catalogId, articlePageRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "An internal error encountered",
-			"payload": articleEnttiy,
-		})
+		c.JSON(http.StatusInternalServerError, resp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"payload": articleEnttiy})
+	c.JSON(http.StatusOK, gin.H{"payload": resp})
 }
 
 func FindArticleById(context *gin.Context) {

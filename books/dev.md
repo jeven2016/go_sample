@@ -19,6 +19,9 @@ go get github.com/natefinch/lumberjack
 
 # gin 校验
 https://github.com/go-playground/validator
+
+# hot reloading
+go get github.com/silenceper/gowatch
 ```
 
 #### Zap log
@@ -70,3 +73,29 @@ A：一个BSON数组。
 E：D中的单个元素。
 
 打包： https://blog.csdn.net/yhflyl/article/details/120649170
+
+### Gin普通字段的校验
+```shell
+import "github.com/astaxie/beego/validation"
+
+func (a *Article) GetArticle(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("ID必须大于0")
+	var data *models.Article
+	code := codes.InvalidParams
+	if !valid.HasErrors() {
+		data = a.Service.GetArticle(id)
+		code = codes.SUCCESS
+	} else {
+		for _, err := range valid.Errors {
+			a.Log.Info("err.key: %s, err.message: %s", err.Key, err.Message)
+		}
+	}
+	RespData(c, http.StatusOK, code, data)
+}
+
+```
+
+reference:
+https://juejin.cn/post/7012155588280844301
