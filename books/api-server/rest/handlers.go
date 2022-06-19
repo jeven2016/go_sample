@@ -36,8 +36,8 @@ func ListCatalogs(context *gin.Context) {
 }
 
 func ListArticles(c *gin.Context) {
-	var articlePageRequest *dto.PageRequest
-	err := c.ShouldBindQuery(articlePageRequest)
+	var articlePageRequest dto.PageRequest
+	err := c.ShouldBindQuery(&articlePageRequest)
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
 		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common.Trans)})
@@ -52,22 +52,26 @@ func ListArticles(c *gin.Context) {
 		return
 	}
 
-	resp, err := articleService.List(catalogId, articlePageRequest)
+	resp, err := articleService.List(catalogId, &articlePageRequest)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, resp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"payload": resp})
+	c.JSON(http.StatusOK, resp)
 }
 
-func FindArticleById(context *gin.Context) {
-	articleId := context.Param("articleId")
+func FindArticleById(c *gin.Context) {
+	articleId := c.Param("articleId")
 	entity, err := articleService.FindById(articleId)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
+		if err.Error() == common.NotFound.Error() {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "An internal error encountered",
 		})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"payload": entity})
+	c.JSON(http.StatusOK, gin.H{"payload": entity})
 }

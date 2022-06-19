@@ -29,7 +29,10 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 	result := artSrv.article.FindOne(context.TODO(), bson.M{"_id": id})
 	err := result.Err()
 	if err != nil {
-		artSrv.log.Warn("error occurs when findById(id)", zap.String("id", id), zap.Error(err))
+		artSrv.log.Warn("Cannot findById(id)", zap.String("id", id), zap.Error(err))
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			return nil, common.NotFound
+		}
 		return nil, err
 	}
 	err = result.Decode(articleEntity)
@@ -80,9 +83,7 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto.PageReques
 		PageSize:     pageRequest.PageSize,
 		TotalRecords: int32(count),
 		Result: dto.Result{
-			Message: "ok",
 			Payload: results,
-			Errors:  nil,
 		},
 	}
 
