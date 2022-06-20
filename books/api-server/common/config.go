@@ -22,8 +22,11 @@ type MongoConfig struct {
 }
 
 type RedisConfig struct {
-	Address   string `mapstructure:"address,omitempty"`
-	Password  string `mapstructure:"password,omitempty"`
-	DefaultDb string `mapstructure:"default_db,omitempty"`
-	PoolSize  string `mapstructure:"pool_size,omitempty"`
+	Address      string `mapstructure:"address,omitempty"`
+	Password     string `mapstructure:"password,omitempty"`
+	DefaultDb    int    `mapstructure:"default_db,omitempty"`
+	PoolSize     int    `mapstructure:"pool_size,omitempty"`
+	PoolTimeout  int    `mapstructure:"pool_timeout"`
+	ReadTimeout  int    `mapstructure:"read_timeout_seconds"`
+	WriteTimeout int    `mapstructure:"write_timeout_seconds"`
 }

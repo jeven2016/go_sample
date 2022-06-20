@@ -36,6 +36,19 @@ func main() {
 		app.Log.Info("the configuration parsed", zap.String("content", json))
 	}
 
+	//初始化redis
+	redisClient, err := initialization.SetupRedis(config, app.Log)
+	if err == nil {
+		app.Log.Error("Cannot initialize redis connection", zap.Error(err))
+	} else {
+		app.RedisClient = redisClient
+		defer func() {
+			if err := redisClient.Close(); err != nil {
+				app.Log.Error("Cannot disconnect redis", zap.Error(err))
+			}
+		}()
+	}
+
 	//初始化Mongodb
 	client, db, err := initialization.SetupMongodb(config, app.Log)
 	if err == nil {
@@ -48,6 +61,8 @@ func main() {
 		}()
 		//设置DB
 		app.Db = db
+	} else {
+		app.Log.Error("Cannot initialize mongo connection", zap.Error(err))
 	}
 
 	//校验错误提示国际化

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
@@ -11,6 +12,8 @@ type App struct {
 
 	//Db mongo database
 	Db *mongo.Database
+
+	RedisClient *redis.Client
 }
 
 func (app *App) NewApp(log *zap.Logger, db *mongo.Database) {
