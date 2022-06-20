@@ -3,6 +3,7 @@ package common
 type Config struct {
 	ApiServerConfig ApiServerConfig `mapstructure:"api-server,omitempty"`
 	MongoConfig     MongoConfig     `mapstructure:"mongodb,omitempty"`
+	RedisConfig     RedisConfig     `mapstructure:"redis,omitempty"`
 }
 
 type ApiServerConfig struct {
@@ -18,4 +19,11 @@ type ApiServerConfig struct {
 type MongoConfig struct {
 	Uri      string `bson:"uri"`
 	Database string `bson:"database"`
+}
+
+type RedisConfig struct {
+	Address   string `mapstructure:"address,omitempty"`
+	Password  string `mapstructure:"password,omitempty"`
+	DefaultDb string `mapstructure:"default_db,omitempty"`
+	PoolSize  string `mapstructure:"pool_size,omitempty"`
 }

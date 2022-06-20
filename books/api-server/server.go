@@ -20,7 +20,7 @@ func main() {
 	//读取配置文件
 	config, err := initialization.SetupViper(*configPath)
 	if err != nil {
-		panic(fmt.Sprintf("Program exited, %v", err))
+		panic(fmt.Sprintf("Program starts, %v", err))
 	}
 
 	app := new(common.App)
@@ -61,7 +61,5 @@ func main() {
 	bind := fmt.Sprintf("%v:%v", config.ApiServerConfig.BindAddress, config.ApiServerConfig.Port)
 	if err := engine.Run(bind); err != nil {
 		panic(errors.New(fmt.Sprintf("failed to start: %v", err)))
-	} else {
-		defer app.Log.Info("Service is stopped")
 	}
 }
