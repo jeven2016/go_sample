@@ -18,11 +18,9 @@ func main() {
 	flag.Parse()
 
 	//读取配置文件
-	config, err := initialization.SetupViper(*configPath)
-	if err != nil {
-		panic(fmt.Sprintf("Program starts, %v", err))
-	}
+	config, _ := initialization.SetupViper(*configPath)
 
+	//创建一个全局的App
 	app := new(common.App)
 
 	//log初始化
@@ -33,26 +31,28 @@ func main() {
 	app.Log = logger
 
 	if json, err := convertor.ToJson(config); err == nil {
-		app.Log.Info("the configuration parsed", zap.String("content", json))
+		app.Log.Error("the configuration parsed", zap.String("content", json))
 	}
 
 	//初始化redis
 	redisClient, err := initialization.SetupRedis(config, app.Log)
 	if err == nil {
-		app.Log.Error("Cannot initialize redis connection", zap.Error(err))
-	} else {
+		app.Log.Info("Connecting to redis successfully", zap.Error(err))
 		app.RedisClient = redisClient
-		defer func() {
-			if err := redisClient.Close(); err != nil {
-				app.Log.Error("Cannot disconnect redis", zap.Error(err))
-			}
-		}()
 	}
+	defer func() {
+		if redisClient == nil {
+			return
+		}
+		if err := redisClient.Close(); err != nil {
+			app.Log.Error("Cannot disconnect redis", zap.Error(err))
+		}
+	}()
 
 	//初始化Mongodb
 	client, db, err := initialization.SetupMongodb(config, app.Log)
 	if err == nil {
-		app.Log.Info("Connecting mongoDB successfully")
+		app.Log.Info("Connecting to mongoDB successfully")
 		defer func() {
 			// 延迟释放连接
 			if err = client.Disconnect(context.TODO()); err != nil {
@@ -75,6 +75,6 @@ func main() {
 
 	bind := fmt.Sprintf("%v:%v", config.ApiServerConfig.BindAddress, config.ApiServerConfig.Port)
 	if err := engine.Run(bind); err != nil {
-		panic(errors.New(fmt.Sprintf("failed to start: %v", err)))
+		panic(errors.New(fmt.Sprintf("Server fails to start: %v", err)))
 	}
 }
