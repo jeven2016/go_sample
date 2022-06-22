@@ -74,5 +74,5 @@ func FindArticleById(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"payload": entity})
+	c.JSON(http.StatusOK, entity)
 }

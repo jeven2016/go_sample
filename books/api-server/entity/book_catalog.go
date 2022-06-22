@@ -5,11 +5,11 @@ import (
 )
 
 type BookCatalog struct {
-	Id       string `bson:"_id" json:"id"`
-	ParentId string `bson:"parentId" json:"parentId"`
-	//Name         string `bson:"name"`
-	Order        int32 `bson:"order" json:"order"`
-	ArticleCount int32 `bson:"articleCount" json:"articleCount"`
-	//Description  string `bson:"description"`
-	catalog *mongo.Collection
+	Id           string `bson:"_id" json:"id"`
+	ParentId     string `bson:"parentId" json:"parentId"`
+	Name         string `bson:"name" json:"name"`
+	Order        int32  `bson:"order" json:"order"`
+	ArticleCount int32  `bson:"articleCount" json:"articleCount"`
+	Description  string `bson:"description" json:"description"`
+	catalog      *mongo.Collection
 }
