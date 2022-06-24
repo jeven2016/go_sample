@@ -1,8 +1,7 @@
-
 SSO集成
 
-
 ### grant_type
+
 ```shell
 grant_types_supported: [
 "authorization_code",
@@ -14,10 +13,12 @@ grant_types_supported: [
 ```
 
 * 申请授权码
+
 ```
 ```
 
 * 使用授权码申请token
+
 ```shell
 curl -X POST \
   http://localhost:9999/auth/realms/zhongfu/protocol/openid-connect/token \
@@ -40,6 +41,7 @@ curl \
 ```
 
 * Token格式
+
 ```shell
 {
    "access_token":"",
