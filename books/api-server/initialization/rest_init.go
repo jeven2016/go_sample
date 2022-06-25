@@ -26,7 +26,11 @@ func registerRoutes(engine *gin.Engine, log *zap.Logger) {
 		catalog.GET("/", rest.ListCatalogs)
 		catalog.GET("/:catalogId/articles", rest.ListArticles)
 	}
-	root.GET("/articles/:articleId", rest.FindArticleById)
+	article := root.Group("articles")
+	{
+		article.GET("/", rest.Search)
+		article.GET("/:articleId", rest.FindArticleById)
+	}
 	engine.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 
 }

@@ -44,7 +44,7 @@ func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
 }
 
 func (artSrv *ArticleService) List(catalogId string, pageRequest *dto.PageRequest) (*dto.ArticlePageResponse, error) {
-	var results []*entity.Article
+	var results = new([]*entity.Article) //分配空间返回地址
 	findOpt := options.Find()
 	findOpt.SetLimit(int64(pageRequest.PageSize))
 	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
@@ -60,21 +60,65 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto.PageReques
 		return nil, err
 	}
 
-	for cursor.Next(context.TODO()) {
-		var article *entity.Article
-		err := cursor.Decode(&article)
-		if err != nil {
-			artSrv.log.Warn("An error occurs while decoding a book article", zap.Error(err))
-			return nil, err
-		}
-		results = append(results, article)
+	err = cursor.All(context.TODO(), results)
+	if err != nil {
+		artSrv.log.Warn("An error occurs while decoding a book article", zap.Error(err))
+		return nil, err
 	}
+	//第二种方法，迭代每一个对象处理
+	//for cursor.Next(context.TODO()) {
+	//	var article *entity.Article
+	//	err := cursor.Decode(&article)
+	//	if err != nil {
+	//		artSrv.log.Warn("An error occurs while decoding a book article", zap.Error(err))
+	//		return nil, err
+	//	}
+	//	results = append(results, article)
+	//}
 
 	//查询总条数
 	countOptions := &options.CountOptions{}
 	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"catalogId": catalogId}, countOptions)
 	if err != nil {
 		artSrv.log.Warn("An error occurs while counting articles", zap.Error(err))
+		return nil, err
+	}
+
+	resp := &dto.ArticlePageResponse{
+		Page:         pageRequest.Page,
+		TotalPage:    int32(math.Ceil(float64(count) / float64(pageRequest.PageSize))),
+		PageSize:     pageRequest.PageSize,
+		TotalRecords: int32(count),
+		Result: dto.Result{
+			Payload: results,
+		},
+	}
+
+	return resp, nil
+}
+
+func (artSrv *ArticleService) Search(pageRequest *dto.PageRequest) (*dto.ArticlePageResponse, error) {
+	//options.
+	findOpt := options.Find()
+	findOpt.SetLimit(int64(pageRequest.PageSize))
+	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
+	findOpt.SetProjection(bson.M{"content": 0})
+
+	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"$text": bson.M{"$search": pageRequest.Search}})
+	if err != nil {
+		artSrv.log.Warn("An error occurs while getting the number of articles", zap.Error(err))
+		return nil, err
+	}
+
+	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"$text": bson.M{"$search": pageRequest.Search}}, findOpt)
+	if err != nil {
+		artSrv.log.Warn("An error occurs while counting articles", zap.Error(err))
+		return nil, err
+	}
+	var results = new([]*entity.Article) //分配空间返回地址
+	err = cursor.All(context.TODO(), results)
+	if err != nil {
+		artSrv.log.Warn("An error occurs while converting articles", zap.Error(err))
 		return nil, err
 	}
 

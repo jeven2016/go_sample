@@ -61,9 +61,10 @@ func ListArticles(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+//FindArticleById  根据id获取Article
 func FindArticleById(c *gin.Context) {
 	articleId := c.Param("articleId")
-	entity, err := articleService.FindById(articleId)
+	articleEntity, err := articleService.FindById(articleId)
 	if err != nil {
 		if errors.Is(err, common.NotFound) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -74,5 +75,25 @@ func FindArticleById(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, entity)
+	c.JSON(http.StatusOK, articleEntity)
+}
+
+func Search(c *gin.Context) {
+	var articlePageRequest dto.PageRequest
+	err := c.ShouldBindQuery(&articlePageRequest)
+	if err != nil {
+		errs := err.(validator.ValidationErrors)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common.Trans)})
+		return
+	}
+	if len(articlePageRequest.Search) == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "search参数未设置"})
+		return
+	}
+	resp, err := articleService.Search(&articlePageRequest)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, resp)
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }
