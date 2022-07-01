@@ -21,16 +21,12 @@ func registerRoutes(engine *gin.Engine, log *zap.Logger) {
 	root := engine.Group("/api/v1", func(context *gin.Context) {
 		log.Info("A request incoming")
 	})
-	catalog := root.Group("catalogs")
-	{
-		catalog.GET("/", rest.ListCatalogs)
-		catalog.GET("/:catalogId/articles", rest.ListArticles)
-	}
-	article := root.Group("articles")
-	{
-		article.GET("/", rest.Search)
-		article.GET("/:articleId", rest.FindArticleById)
-	}
+	//gin无法通过Group实现根路径有资源，其下路径还有资源
+	root.GET("/catalogs", rest.ListCatalogs)
+	root.GET("/catalogs/:catalogId/articles", rest.ListArticles)
+
+	root.GET("/articles", rest.Search)
+	root.GET("/articles/:articleId", rest.FindArticleById)
 	engine.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 
 }
