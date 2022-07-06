@@ -1,8 +1,8 @@
 package main
 
 import (
-	"api/common"
-	"api/initialization"
+	"api/pkg/common"
+	initialization2 "api/pkg/initialization"
 	"context"
 	"errors"
 	"fmt"
@@ -18,13 +18,13 @@ func main() {
 	flag.Parse()
 
 	//读取配置文件
-	config, _ := initialization.SetupViper(*configPath)
+	config, _ := initialization2.SetupViper(*configPath)
 
 	//创建一个全局的App
 	app := new(common.App)
 
 	//log初始化
-	logger := initialization.SetupLog(*config)
+	logger := initialization2.SetupLog(*config)
 	defer logger.Sync()
 
 	//设置logger
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	//初始化redis
-	redisClient, err := initialization.SetupRedis(config, app.Log)
+	redisClient, err := initialization2.SetupRedis(config, app.Log)
 	if err == nil {
 		app.Log.Info("Connecting to redis successfully", zap.Error(err))
 		app.RedisClient = redisClient
@@ -50,7 +50,7 @@ func main() {
 	}()
 
 	//初始化Mongodb
-	client, db, err := initialization.SetupMongodb(config, app.Log)
+	client, db, err := initialization2.SetupMongodb(config, app.Log)
 	if err == nil {
 		app.Log.Info("Connecting to mongoDB successfully")
 		defer func() {
@@ -66,12 +66,12 @@ func main() {
 	}
 
 	//校验错误提示国际化
-	if err := initialization.InitTrans("zh"); err != nil {
+	if err := initialization2.InitTrans("zh"); err != nil {
 		app.Log.Warn("Failed to initialize i18 resources")
 	}
 
 	//web初始化
-	engine := initialization.SetupEngine(config, app)
+	engine := initialization2.SetupEngine(config, app)
 
 	bind := fmt.Sprintf("%v:%v", config.ApiServerConfig.BindAddress, config.ApiServerConfig.Port)
 	if err := engine.Run(bind); err != nil {
