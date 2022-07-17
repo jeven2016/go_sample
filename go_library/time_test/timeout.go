@@ -24,7 +24,7 @@ func TimeoutFunc() {
 				println("index", times)
 				times++
 				timer2.Reset(3 * time.Second)
-				println("rest timer2")
+				println("handler timer2")
 			}
 
 		}

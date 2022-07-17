@@ -52,7 +52,7 @@ func Filepath_func() {
 	//dir 分割
 	//Split函数将路径从最后一个路径分隔符后面位置分隔为两个部分（dir和file）并返回。如果路径中没有路径分隔符，函数返回值dir会设为空字符串，
 	//file会设为path。两个返回值满足path == dir+file。
-	println(filepath.Split("/root/books/stupid_rabbit.md"))
+	println(filepath.Split("/root/backend/stupid_rabbit.md"))
 
 	//Join函数可以将任意数量的路径元素放入一个单一路径里，会根据需要添加路径分隔符。结果是经过简化的，所有的空字符串元素会被忽略。
 	println("path joined", filepath.Join("root", "a", "b"))
