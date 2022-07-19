@@ -1,9 +1,9 @@
 package service
 
 import (
+	"api/app/books/dto"
+	"api/app/books/entitie"
 	"api/pkg/common"
-	"api/pkg/dto"
-	"api/pkg/entity"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,7 +28,7 @@ func NewCatalogService(app *common.App) *CatalogService {
 }
 
 func (c *CatalogService) List() (*dto.CatalogListResponse, error) {
-	var results []*entity.BookCatalog
+	var results []*entitie.BookCatalog
 	findOpts := options.Find()
 	findOpts.SetLimit(15)
 
@@ -40,7 +40,7 @@ func (c *CatalogService) List() (*dto.CatalogListResponse, error) {
 	}
 
 	for cursor.Next(context.TODO()) {
-		var catalog *entity.BookCatalog
+		var catalog *entitie.BookCatalog
 		err := cursor.Decode(&catalog)
 		if err != nil {
 			c.log.Warn("An error occurs while decoding a book catalog", zap.Error(err))

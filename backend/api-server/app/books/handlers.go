@@ -1,10 +1,10 @@
-package rest
+package books
 
 import (
+	"api/app/books/dto"
+	"api/app/books/entitie"
+	"api/app/books/service"
 	common2 "api/pkg/common"
-	"api/pkg/dto"
-	"api/pkg/entity"
-	service2 "api/pkg/service"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -13,13 +13,13 @@ import (
 )
 
 var once sync.Once
-var catalogService *service2.CatalogService
-var articleService *service2.ArticleService
+var catalogService *service.CatalogService
+var articleService *service.ArticleService
 
 func SetupServices(app *common2.App) {
 	once.Do(func() {
-		catalogService = service2.NewCatalogService(app)
-		articleService = service2.NewArticleService(app)
+		catalogService = service.NewCatalogService(app)
+		articleService = service.NewArticleService(app)
 	})
 
 }
@@ -28,7 +28,7 @@ func ListCatalogs(context *gin.Context) {
 	catalogList, err := catalogService.List()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
-			"payload": []entity.BookCatalog{},
+			"payload": []entitie.BookCatalog{},
 		})
 		return
 	}
