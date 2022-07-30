@@ -4,6 +4,7 @@ type Config struct {
 	ApiServerConfig ApiServerConfig `mapstructure:"api-server,omitempty"`
 	MongoConfig     MongoConfig     `mapstructure:"mongodb,omitempty"`
 	RedisConfig     RedisConfig     `mapstructure:"redis,omitempty"`
+	AuthConfig      AuthConfig      `mapstructure:"auth,omitempty"`
 }
 
 type ApiServerConfig struct {
@@ -29,4 +30,12 @@ type RedisConfig struct {
 	PoolTimeout  int    `mapstructure:"pool_timeout"`
 	ReadTimeout  int    `mapstructure:"read_timeout_seconds"`
 	WriteTimeout int    `mapstructure:"write_timeout_seconds"`
+}
+
+type AuthConfig struct {
+	EnableAuth    bool   `mapstructure:"enable_auth,omitempty"`
+	KeycloakUrl   string `mapstructure:"keycloak_url,omitempty"`
+	ClientId      string `mapstructure:"client_id,omitempty"`
+	ClientSecret  string `mapstructure:"client_secret,omitempty"`
+	KeycloakRealm string `mapstructure:"keycloak_realm,omitempty"`
 }

@@ -5,6 +5,7 @@ import (
 	"api/app/books/entitie"
 	"api/app/books/service"
 	common2 "api/pkg/common"
+	"api/pkg/global"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -16,7 +17,7 @@ var once sync.Once
 var catalogService *service.CatalogService
 var articleService *service.ArticleService
 
-func SetupServices(app *common2.App) {
+func SetupServices(app *global.App) {
 	once.Do(func() {
 		catalogService = service.NewCatalogService(app)
 		articleService = service.NewArticleService(app)

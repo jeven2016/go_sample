@@ -5,6 +5,7 @@ import (
 	"api/app/books/entitie"
 	"api/pkg/common"
 	"api/pkg/dto"
+	"api/pkg/global"
 	"context"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,9 +20,9 @@ type ArticleService struct {
 	log     *zap.Logger
 }
 
-func NewArticleService(app *common.App) *ArticleService {
+func NewArticleService(app *global.App) *ArticleService {
 	return &ArticleService{
-		article: app.Db.Collection("article"),
+		article: app.MongoClient.Db.Collection("article"),
 		log:     app.Log,
 	}
 }

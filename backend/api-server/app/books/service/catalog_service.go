@@ -3,7 +3,7 @@ package service
 import (
 	"api/app/books/dto"
 	"api/app/books/entitie"
-	"api/pkg/common"
+	"api/pkg/global"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,9 +20,9 @@ type CatalogService struct {
 	log     *zap.Logger
 }
 
-func NewCatalogService(app *common.App) *CatalogService {
+func NewCatalogService(app *global.App) *CatalogService {
 	return &CatalogService{
-		catalog: app.Db.Collection("catalog"),
+		catalog: app.MongoClient.Db.Collection("catalog"),
 		log:     app.Log,
 	}
 }

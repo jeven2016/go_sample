@@ -108,3 +108,15 @@ func (a *Article) GetArticle(c *gin.Context) {
 
 reference:
 https://juejin.cn/post/7012155588280844301
+
+### 使用国内源  
+设置代理：  
+```shell
+go env -w GOPROXY=https://goproxy.cn,direct
+```
+
+### 集成keycloak
+https://zhuanlan.zhihu.com/p/488194876
+```shell
+
+```

@@ -1,4 +1,4 @@
-package initialization
+package clients
 
 import (
 	"api/pkg/common"
@@ -8,9 +8,15 @@ import (
 	"time"
 )
 
-func SetupRedis(config *common.Config, log *zap.Logger) (client *redis.Client, err error) {
-	var redisCfg = config.RedisConfig
-	client = redis.NewClient(&redis.Options{
+type RedisClient struct {
+	Client *redis.Client
+	Config *common.RedisConfig
+	Log    *zap.Logger
+}
+
+func (c *RedisClient) StartInit() error {
+	var redisCfg = c.Config
+	client := redis.NewClient(&redis.Options{
 		Addr:         redisCfg.Address,
 		Password:     redisCfg.Password,
 		DB:           redisCfg.DefaultDb,
@@ -22,7 +28,9 @@ func SetupRedis(config *common.Config, log *zap.Logger) (client *redis.Client, e
 	})
 
 	if _, err := client.Ping(context.TODO()).Result(); err != nil {
-		log.Error("Cannot connect to mongodb", zap.Error(err))
+		c.Log.Error("Cannot connect to mongodb", zap.Error(err))
+		return err
 	}
-	return client, err
+	c.Client = client
+	return nil
 }
