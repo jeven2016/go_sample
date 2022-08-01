@@ -1,0 +1,53 @@
+#https://help.aliyun.com/document_detail/93844.html
+
+### create user
+#The tags key is mandatory. Either password or password_hash can be set.
+#If neither are set the user will not be able to log in with a password,
+#but other mechanisms like client certificates may be used.
+#Setting password_hash to "" will ensure the user cannot use a password to log in.
+#tags is a comma-separated list of tags for the user. Currently recognised tags are administrator,
+#monitoring and management. password_hash must be generated using the algorithm described here.
+#You may also specify the hash function being used by adding the hashing_algorithm key to the body.
+#Currently recognised algorithms are rabbit_password_hashing_sha256, rabbit_password_hashing_sha512,
+PUT http://localhost:15672/api/users/jeven
+Authorization: Basic admin admin
+
+{"username":"jeven", "password":"1","tags":"administrator"}
+
+
+### retrieve a user
+GET http://localhost:15672/api/users/jeven
+Authorization: Basic admin admin
+
+
+### /api/users/user/permissions
+GET http://localhost:15672/api/users/jeven/permissions
+Authorization: Basic admin admin
+
+
+
+### retrieve vhosts
+GET http://localhost:15672/api/vhosts
+Authorization: Basic admin admin
+
+### retrieve a list of users
+GET http://localhost:15672/api/users
+Authorization: Basic admin admin
+
+### A list of users that do not have access to any virtual host.
+GET http://localhost:15672/api/users/without-permissions
+Authorization: Basic admin admin
+
+### A list of all permissions for a given user.
+GET http://localhost:15672/api/users/admin/permissions
+Authorization: Basic admin admin
+
+
+### A list of all topic permissions for all users.
+GET http://localhost:15672/api/topic-permissions
+Authorization: Basic admin admin
+
+
+### A list of all topic permissions for a given user.
+GET http://localhost:15672/api/users/admin/topic-permissions
+Authorization: Basic admin admin
