@@ -12,7 +12,7 @@
 PUT http://localhost:15672/api/users/jeven
 Authorization: Basic admin admin
 
-{"username":"jeven", "password":"1","tags":"administrator"}
+{"username":"jeven", "password":"1","tags":"none"}
 
 
 ### retrieve a user

@@ -19,7 +19,7 @@ import (
 // publish/subscribe loop with bridges to application types.
 
 //var url = flag.String("url", "amqp:///", "AMQP url for both the publisher and subscriber")
-var url string = "amqp://admin:admin@localhost:5672"
+var url string = "amqp://jeven:1@localhost:5672"
 
 // exchange binds the publishers to the subscribers
 const exchange = "pubsub"

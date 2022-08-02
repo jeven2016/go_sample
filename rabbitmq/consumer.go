@@ -22,6 +22,6 @@ func main() {
 	channel, err := connection.Channel()
 	handleError(err)
 
-	deliveries, err := channel.Consume(queueName_consumer, "", true, false, false, false, nil)
+	_, err = channel.Consume(queueName_consumer, "", true, false, false, false, nil)
 	handleError(err)
 }
