@@ -23,7 +23,8 @@ func (c *AuthClient) StartInit() error {
 		return errors.New("Auth: OpenID connect feature is not enabled")
 	}
 
-	client := gocloak.NewClient(c.Config.KeycloakUrl)
+	client := gocloak.NewClient(c.Config.KeycloakUrl, gocloak.SetAuthRealms("realms"),
+		gocloak.SetAuthAdminRealms("admin/realms"))
 	c.Client = client
 	return nil
 }
