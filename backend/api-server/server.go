@@ -24,6 +24,7 @@ func main() {
 
 	//创建一个全局的App
 	app := new(global.App)
+	global.GlobalApp = app
 
 	//log初始化
 	logger := initialization.SetupLog(*config)

@@ -4,7 +4,7 @@ import (
 	"api/app/books/dto"
 	"api/app/books/entitie"
 	"api/app/books/service"
-	common2 "api/pkg/common"
+	common "api/pkg/common"
 	"api/pkg/global"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -42,7 +42,7 @@ func ListArticles(c *gin.Context) {
 	err := c.ShouldBindQuery(&articlePageRequest)
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
-		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common2.Trans)})
+		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common.Trans)})
 		return
 	}
 
@@ -67,7 +67,7 @@ func FindArticleById(c *gin.Context) {
 	articleId := c.Param("articleId")
 	articleEntity, err := articleService.FindById(articleId)
 	if err != nil {
-		if errors.Is(err, common2.NotFound) {
+		if errors.Is(err, common.NotFound) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
@@ -84,7 +84,7 @@ func Search(c *gin.Context) {
 	err := c.ShouldBindQuery(&articlePageRequest)
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
-		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common2.Trans)})
+		c.JSON(http.StatusBadRequest, gin.H{"error": errs.Translate(common.Trans)})
 		return
 	}
 	if len(articlePageRequest.Search) == 0 {

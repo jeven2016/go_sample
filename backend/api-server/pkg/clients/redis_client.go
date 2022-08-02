@@ -28,7 +28,7 @@ func (c *RedisClient) StartInit() error {
 	})
 
 	if _, err := client.Ping(context.TODO()).Result(); err != nil {
-		c.Log.Error("Cannot connect to mongodb", zap.Error(err))
+		c.Log.Error("Cannot connect to redis", zap.Error(err))
 		return err
 	}
 	c.Client = client

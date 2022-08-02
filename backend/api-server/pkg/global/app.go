@@ -18,3 +18,5 @@ type App struct {
 
 	AuthClient *clients.AuthClient
 }
+
+var GlobalApp *App
