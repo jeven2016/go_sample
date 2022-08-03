@@ -129,15 +129,15 @@ func downloadAssets(ctx context.Context, itemChan <-chan common.Item, config *co
 }
 
 func ensureDirectory(config *common.Config, repository string, logger *zap.Logger) (string, error) {
-	path := filepath.Join(config.Nexus.AssetsDirectory, repository)
-	exists := fileutil.IsExist(path)
+	dir := filepath.Join(config.Nexus.AssetsDirectory, repository)
+	exists := fileutil.IsExist(dir)
 	if !exists {
-		if err := fileutil.CreateDir(path); err != nil {
+		if err := fileutil.CreateDir(dir); err != nil {
 			logger.Error("failed to create directory",
-				zap.String("directory", path),
+				zap.String("directory", dir),
 				zap.Error(err))
 			return "", err
 		}
 	}
-	return path, nil
+	return dir, nil
 }
