@@ -12,7 +12,7 @@ func SetupViper(configFilePath string) (*Config, error) {
 		viper.SetConfigName("conf")
 		viper.SetConfigType("ini")
 		viper.AddConfigPath("./conf")
-		viper.AddConfigPath("/etc/nj-mover/")
+		viper.AddConfigPath("/etc/move-repository/")
 	} else {
 		viper.SetConfigFile(configFilePath)
 	}

@@ -44,7 +44,7 @@ func SetupLog(cfg Config) *zap.Logger {
 	// 日志轮转
 	writer := &lumberjack.Logger{
 		// 日志名称
-		Filename: cfg.General.ServiceName + ".log",
+		Filename: "log.log",
 		// 日志大小限制，单位MB
 		MaxSize: 10,
 		// 历史日志文件保留天数

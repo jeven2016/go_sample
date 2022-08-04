@@ -72,7 +72,7 @@ func FindArticleById(c *gin.Context) {
 			return
 		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "An internal error encountered",
+			"error": "An handler error encountered",
 		})
 		return
 	}

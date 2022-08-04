@@ -5,16 +5,21 @@ import (
 	"github.com/duke-git/lancet/v2/convertor"
 	flag "github.com/spf13/pflag"
 	"go.uber.org/zap"
-	"nj-mover/pkg/common"
-	"nj-mover/pkg/download"
+	"move-repository/pkg/common"
+	"move-repository/pkg/handler"
 	"runtime"
 )
 
 var configPath *string = flag.StringP("config", "c", "", "The path of config file")
+var command *string = flag.StringP("command", "m", "", "The supported command: handler, upload ")
 
 func main() {
 	flag.Parse()
 	config, _ := common.SetupViper(*configPath)
+
+	if len(*command) == 0 {
+		panic("you should specify the command to run: handler or upload")
+	}
 
 	//log初始化
 	logger := common.SetupLog(*config)
@@ -28,7 +33,13 @@ func main() {
 	ctx = context.WithValue(ctx, "logger", logger)
 
 	runtime.GOMAXPROCS(5)
-	download.Download(ctx)
+
+	switch *command {
+	case "handler":
+		handler.Download(ctx)
+	case "upload":
+		handler.Upload(ctx)
+	}
 
 	select {}
 }

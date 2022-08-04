@@ -22,3 +22,8 @@ type Item struct {
 	Version    string `json:"version"`
 	Assets     *[]Asset
 }
+
+type AssetMetaData struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+}

@@ -1,0 +1,23 @@
+### curl nexus repository
+# curl -u admin:1 -X GET 'http://localhost:8081/service/rest/v1/components?repository=npm-proxy'
+GET http://localhost:8081/service/rest/v1/components?repository=npm-proxy
+Authorization: Basic admin 1
+
+### nexus pagination
+# curl -u admin:1 -X GET 'http://localhost:8081/service/rest/v1/components?repository=npm-proxy&continuationToken=40292acdebc01b839849abfda572cf35'
+GET http://localhost:8081/service/rest/v1/components?repository=npm-proxy&continuationToken=40292acdebc01b839849abfda572cf35
+Authorization: Basic admin 1
+
+###
+GET http://localhost:9091/artifactory/api/npm/npm-release
+X-JFrog-Art-Api: AKCp8mZwPwQQP3qqh6tWsc1Eo9s8PKKE5MyvYCezwUoi39USoKQx4Gh7xvikLSiX8DD92R61o
+
+#npm config set registry http://localhost:8081/artifactory/api/npm/npm-release/
+#curl -H "X-JFrog-Art-Api:AKCp8mZwPwQQP3qqh6tWsc1Eo9s8PKKE5MyvYCezwUoi39USoKQx4Gh7xvikLSiX8DD92R61o" -X PUT "http://localhost:8081/artifactory/api/npm/npm-release/conf.ini" -T conf.ini
+curl -H "X-JFrog-Art-Api:AKCp8mZwPwQQP3qqh6tWsc1Eo9s8PKKE5MyvYCezwUoi39USoKQx4Gh7xvikLSiX8DD92R61o"  "http://localhost:9091/artifactory/api/npm/auth"
+
+
+curl -sSf -H "X-JFrog-Art-Api:AKCp8mZwPwQQP3qqh6tWsc1Eo9s8PKKE5MyvYCezwUoi39USoKQx4Gh7xvikLSiX8DD92R61o" \
+       -X PUT \
+       -T abs-svg-path-0.1.1.tgz \
+       'http://localhost:8082/artifactory/npm-release/abs-svg-path-0.1.1.tgz'
