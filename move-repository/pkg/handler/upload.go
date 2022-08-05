@@ -71,7 +71,7 @@ func uploadAssets(config *common.Config, logger *zap.Logger, mdChan <-chan commo
 
 	for item := range mdChan {
 		var assetUrl = makeJfrogUrl(config.Jfrog) + "/" + item.Path
-		sourceFilePath := filepath.Join(config.General.AssetsDirectory, config.Nexus.Repository, item.Name)
+		sourceFilePath := filepath.Join(config.General.AssetsDirectory, config.Nexus.Repository, genFileName(item.Path))
 		if !fileutil.IsExist(sourceFilePath) {
 			continue
 		}
@@ -89,7 +89,6 @@ func uploadAssets(config *common.Config, logger *zap.Logger, mdChan <-chan commo
 			return
 		}
 		logger.Info("upload successfully", zap.String("assetUrl", assetUrl))
-		os.Exit(0)
 	}
 }
 

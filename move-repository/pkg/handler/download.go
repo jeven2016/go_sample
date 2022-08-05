@@ -78,15 +78,18 @@ func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.
 		// add items into chanel
 		if items := assets.Items; items != nil {
 			for _, it := range *items {
-				if !assetExists(config, nexusCfg.Repository, &it) {
-					itemChan <- it
-					assetCount++
-				}
+				itemChan <- it
+				assetCount++
 			}
 		}
 
 		pages++
 		continuationToken = assets.ContinuationToken
+
+		if len(assets.ContinuationToken) == 0 {
+			logger.Warn("assets.ContinuationToken is blank and that means no next page need to check", zap.Int("page", pages))
+		}
+
 		logger.Info("Completed for parsing this pages",
 			zap.String("repository", nexusCfg.Repository),
 			zap.Int("page", pages),
@@ -124,11 +127,28 @@ func downloadAssets(directory string, itemChan <-chan common.Item, config *commo
 	}
 }
 
+func genFileName(filePath string) string {
+	fileName := assetName(filePath)
+
+	// check if group prefix exists
+	if strings.HasPrefix(filePath, "@") {
+		group := strings.Split(filePath, "/")[0]
+		fileName = group + "___" + fileName
+	}
+
+	return fileName
+}
+
 func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, config *common.Config) {
-	fileName := assetName(asset.Path)
+	fileName := genFileName(asset.Path)
+
+	if fileutil.IsExist(filepath.Join(directory, fileName)) {
+		logger.Info("asset already downloaded", zap.String("file", fileName))
+		return
+	}
 
 	//save metadata
-	err := writeMedata(asset, directory, fileName)
+	err := writeMedata(asset, directory, fileName, assetName(asset.Path))
 
 	if err != nil {
 		logger.Error("failed to write meta data",
@@ -151,9 +171,9 @@ func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, con
 		zap.String("path", asset.Path))
 }
 
-func writeMedata(asset common.Asset, directory string, fileName string) error {
+func writeMedata(asset common.Asset, directory string, fileName string, pureName string) error {
 	metaData, _ := convertor.ToJson(common.AssetMetaData{
-		Name: fileName,
+		Name: pureName,
 		Path: asset.Path,
 	})
 
@@ -193,17 +213,4 @@ func directoryExists(config *common.Config, repository string) (string, bool) {
 
 func assetName(pathString string) string {
 	return path.Base(pathString)
-}
-
-func assetExists(config *common.Config, repository string, assetItem *common.Item) bool {
-	for _, asset := range *assetItem.Assets {
-		fileName := assetName(asset.Path)
-		dir, exists := directoryExists(config, repository)
-		if !exists {
-			return false
-		}
-		exist := fileutil.IsExist(path.Join(dir, fileName))
-		return exist
-	}
-	return false
 }

@@ -21,3 +21,5 @@ curl -sSf -H "X-JFrog-Art-Api:AKCp8mZwPwQQP3qqh6tWsc1Eo9s8PKKE5MyvYCezwUoi39USoK
        -X PUT \
        -T abs-svg-path-0.1.1.tgz \
        'http://localhost:8082/artifactory/npm-release/abs-svg-path-0.1.1.tgz'
+
+curl -X POST "http://localhost:8081/service/rest/v1/components?repository=npm-proxy" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "raw.directory=/home/jujucom/Downloads" -F "raw.asset1=@nexus-3.30.0-01-unix.tar.gz;type=application/x-gzip" -F "raw.asset1.filename=aaa.tar.gz"

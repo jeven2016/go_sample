@@ -11,7 +11,7 @@ import (
 )
 
 var configPath *string = flag.StringP("config", "c", "", "The path of config file")
-var command *string = flag.StringP("command", "m", "", "The supported command: handler, upload ")
+var command *string = flag.StringP("command", "m", "", "The supported command: download, upload ")
 
 func main() {
 	flag.Parse()
@@ -35,11 +35,10 @@ func main() {
 	runtime.GOMAXPROCS(5)
 
 	switch *command {
-	case "handler":
+	case "download":
 		handler.Download(ctx)
 	case "upload":
 		handler.Upload(ctx)
 	}
-
 	select {}
 }
