@@ -31,6 +31,8 @@ func Upload(ctx context.Context) {
 }
 
 func loadJsonFiles(config *common.Config, logger *zap.Logger, mdChan chan<- common.AssetMetaData) {
+	defer close(mdChan)
+
 	directory := config.General.AssetsDirectory
 	nexusRepo := config.Nexus.Repository
 	files, err := filepath.Glob(filepath.Join(directory, nexusRepo, "*.json"))
@@ -40,6 +42,10 @@ func loadJsonFiles(config *common.Config, logger *zap.Logger, mdChan chan<- comm
 		os.Exit(0)
 	}
 
+	if len(files) == 0 {
+		logger.Warn("no json metadata file found in this directory", zap.String("directory", directory))
+		return
+	}
 	for _, jsonPath := range files {
 		go func(jp string) {
 			jsonString, err := fileutil.ReadFileToString(jp)
