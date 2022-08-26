@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "loginName": "1444",
+    "name": "wzj",
+    "orgDepartmentId": 123459,
+    "pinyin": "wangzhaoju",
+    "pinyinhead": "wzj",
+    "emailAddress": "wzj@zhongfu.net",
+    "hiredate": 1661492136,
+    "telnumber": "18633333343",
+    "reporter": 2,
+    "orgLevelName": "员工"
+  },
+  {
+    "id": 2,
+    "loginName": "1442",
+    "name": "nj",
+    "orgDepartmentId": 123460,
+    "pinyin": "nj",
+    "pinyinhead": "sdjfsldf",
+    "emailAddress": "wwerzj@zhongfu.net",
+    "hiredate": 1661492126,
+    "telnumber": "13633333343",
+    "reporter": 1,
+    "orgLevelName": "员工"
+  }
+]

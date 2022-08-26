@@ -3,6 +3,7 @@ package clients
 import (
 	"api/pkg/common"
 	"errors"
+	"github.com/golang-jwt/jwt/v4"
 
 	//"api/pkg/common"
 	"context"
@@ -29,13 +30,13 @@ func (c *AuthClient) StartInit() error {
 	return nil
 }
 
-//CheckAccessToken Normal case:
+//Introspect Normal case:
 //UI calls {backend_api}/auth/login
 //Backend API redirects UI client to {keycloak}/realms/myrealm/protocol/openid-connect/auth/ with redirect URL as {backend_api}/auth/callback
 //Authentication happens and the handler at {backend_api}/auth/callback gets the authorization_code.
 //Above handler makes request to {{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token to get the access_token
 //Set-cookie and returns to UI client.
-func (c *AuthClient) CheckAccessToken(accessToken string) (*gocloak.RetrospecTokenResult, bool) {
+func (c *AuthClient) Introspect(accessToken string) (*gocloak.RetrospecTokenResult, bool) {
 	cfg := c.Config
 	//You will need to use the public key for your keycloak realm, which you can either grab for every authentication request, or just cache.
 	//To get the public key, you can use the gocloak function GetCerts,
@@ -55,4 +56,27 @@ func (c *AuthClient) CheckAccessToken(accessToken string) (*gocloak.RetrospecTok
 		return result, false
 	}
 	return result, true
+}
+
+func (c *AuthClient) GetRptToken(accessToken string) (*gocloak.JWT, error) {
+	cfg := c.Config
+
+	//Audience : client id of resource server
+	result, err := c.Client.GetRequestingPartyToken(context.Background(), accessToken, cfg.KeycloakRealm,
+		gocloak.RequestingPartyTokenOptions{
+			Audience: gocloak.StringP(cfg.ClientId),
+		})
+	if err != nil {
+		c.Log.Warn("failed to issue RPT token", zap.String("accessToken", accessToken), zap.Error(err))
+	}
+	return result, err
+}
+
+func (c *AuthClient) DecodeAccessToken(accessToken string) (*jwt.Token, *jwt.MapClaims, error) {
+	token, claims, err := c.Client.DecodeAccessToken(context.Background(), accessToken, c.Config.KeycloakRealm)
+
+	if err != nil {
+		c.Log.Warn("failed to issue RPT token", zap.String("accessToken", accessToken), zap.Error(err))
+	}
+	return token, claims, err
 }

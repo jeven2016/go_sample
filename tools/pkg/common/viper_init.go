@@ -12,7 +12,7 @@ func SetupViper(configFilePath string) (*Config, error) {
 		viper.SetConfigName("conf")
 		viper.SetConfigType("ini")
 		viper.AddConfigPath("./conf")
-		viper.AddConfigPath("/etc/move-repository/")
+		viper.AddConfigPath("/etc/tools/")
 	} else {
 		viper.SetConfigFile(configFilePath)
 	}

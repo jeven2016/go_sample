@@ -26,7 +26,7 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 		items := strings.Split(bearHeader, common.Bearer)
 		if len(items) > 1 {
 			token := strings.Trim(items[1], " ")
-			result, active := global.GlobalApp.AuthClient.CheckAccessToken(token)
+			result, active := global.GlobalApp.AuthClient.Introspect(token)
 			if !active {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Result{Code: http.StatusUnauthorized, Message: "unauthorized user"})
 			}
@@ -36,30 +36,35 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 			}
 			log.Info("Valid token checked", zap.String("url", c.Request.URL.String()), zap.String("result", data))
 
-			var resourceName = "admin resource"
-			permissions, err := global.GlobalApp.AuthClient.Client.GetUserPermissions(context.Background(), token, "jeven", gocloak.GetUserPermissionParams{
-				ResourceID: &resourceName,
-			})
+			permissions, err := global.GlobalApp.AuthClient.Client.GetUserPermissions(context.Background(), token,
+				global.GlobalApp.AuthClient.Config.KeycloakRealm, gocloak.GetUserPermissionParams{})
 			for p := range permissions {
 				json, _ := convertor.ToJson(p)
 				log.Info("p", zap.String("json", json))
 			}
 
-			//获取用户所有的资源权限token，然后introspect
-			partyToken2, err := global.GlobalApp.AuthClient.Client.GetRequestingPartyToken(context.Background(), token, "jeven", gocloak.RequestingPartyTokenOptions{
-				Audience: gocloak.StringP("api-server"),
-			})
+			path := c.Request.URL.Path
 
-			partyPermissions, err := global.GlobalApp.AuthClient.Client.
-				GetRequestingPartyPermissions(context.Background(), partyToken2.AccessToken, "jeven",
-					gocloak.RequestingPartyTokenOptions{})
+			log.Info("path" + path)
+			//根据用户的accessToken获取rptToken, 获取用户所有的资源权限
+			rptToken, err := global.GlobalApp.AuthClient.GetRptToken(token)
+			checkToken, valid := global.GlobalApp.AuthClient.Introspect(rptToken.AccessToken)
 
-			for _, client := range *partyPermissions {
-				var str = client.String()
-				log.Info("per", zap.String("str", str))
+			if !valid {
+				log.Warn("The RPT token is failed to retrospect", zap.String("rpt token", rptToken.AccessToken))
+			} else {
+				for _, p := range *checkToken.Permissions {
+					var str = p.String()
+					log.Info("per", zap.String("str", str))
+				}
 			}
 
-			log.Info("partyToken2", zap.String("partyToken2", partyToken2.IDToken))
+			tokenNew, claims, err := global.GlobalApp.AuthClient.DecodeAccessToken(token)
+			if err == nil {
+				log.Info("tokenNew", zap.Bool("tn", tokenNew.Valid))
+				log.Info("token2", zap.Error(claims.Valid()))
+			}
+
 			return
 		}
 

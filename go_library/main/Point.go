@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 func PointTst() {
@@ -20,4 +21,12 @@ func PointTst() {
 	} else {
 		fmt.Printf("nothing matches")
 	}
+
+	var intVal2 int = 333
+	log.Printf("val begin=%p", intVal2)
+	other(intVal2)
+}
+
+func other(val any) {
+	log.Printf("val=%p", val)
 }

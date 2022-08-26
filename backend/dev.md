@@ -120,3 +120,10 @@ https://zhuanlan.zhihu.com/p/488194876
 ```shell
 
 ```
+
+### 控制台进度及表格输出
+```shell
+https://github.com/jedib0t/go-pretty
+
+https://github.com/jedib0t/go-pretty/blob/main/cmd/demo-progress/demo.go
+```
