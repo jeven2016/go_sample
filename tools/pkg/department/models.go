@@ -29,6 +29,8 @@ type IamDepartmentUser struct {
 
 type IamDepartment struct {
 	Id             int64                `json:"-"`
+	Name           string               `json:"name"`
+	ParentName     string               `json:"parentName"`
 	Priority       int                  `json:"priority"`
 	Enabled        bool                 `json:"enabled"`
 	Description    string               `json:"description"`
@@ -43,6 +45,7 @@ type IamUser struct {
 	Email        string            `json:"email"`
 	DepartmentId int64             `json:"-"`
 	Attributes   map[string]string `json:"attributes"`
+	RealmRoles   []string          `json:"realmRoles"`
 }
 
 type IamDepartmentRoot struct {

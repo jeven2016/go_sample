@@ -21,6 +21,7 @@ func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPat
 	for _, dep := range *oaDeps {
 		iamDep := &IamDepartment{
 			Id:          dep.Id,
+			Name:        dep.Name,
 			Priority:    dep.SortId,
 			Enabled:     dep.Enabled,
 			Description: dep.WholeName,
@@ -46,16 +47,16 @@ func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPat
 	return depList, depMap
 }
 
-func ConvertUsers(srcUserFilePath *string, destUserFileDepPath *string) []*IamUser {
-	users := loadUsers(srcUserFilePath)
+func ConvertUsers(srcUserFilePath *string, destUserFileDepPath *string, roles []string) []*IamUser {
+	users := loadUsers(srcUserFilePath, roles)
 	saveFile[*IamUserRoot](&IamUserRoot{Users: users}, destUserFileDepPath)
 	return users
 }
 
 func ConvertAll(oaRootDepId *string, srcFilePath *string, destFileDepPath *string,
-	srcUserFilePath *string, destUserFileDepPath *string) {
+	srcUserFilePath *string, destUserFileDepPath *string, roles []string) {
 
-	users := ConvertUsers(srcUserFilePath, destUserFileDepPath)
+	users := ConvertUsers(srcUserFilePath, destUserFileDepPath, roles)
 	depList, depMap := ConvertDepartments(oaRootDepId, srcFilePath, destFileDepPath, false)
 
 	for _, user := range users {
@@ -72,7 +73,7 @@ func ConvertAll(oaRootDepId *string, srcFilePath *string, destFileDepPath *strin
 	saveFile[*IamDepartmentRoot](&IamDepartmentRoot{Departments: depList}, destFileDepPath)
 }
 
-func loadUsers(srcUserFilePath *string) []*IamUser {
+func loadUsers(srcUserFilePath *string, roles []string) []*IamUser {
 	var users = Import[OaUser](srcUserFilePath)
 
 	var userNameMap = make(map[int64]string)
@@ -97,6 +98,7 @@ func loadUsers(srcUserFilePath *string) []*IamUser {
 				"职务":   user.OrgLevelName,
 				"上级领导": userNameMap[user.Reporter],
 			},
+			RealmRoles: roles,
 		}
 		iamUsers = append(iamUsers, iamUser)
 	}
@@ -108,6 +110,7 @@ func appendChild(iamDep *IamDepartment, oaDep *OaDepartment, depList []*IamDepar
 		if oaDep.Superior == existingIamDep.Id {
 			var subDesps = append(existingIamDep.SubDepartments, iamDep)
 			existingIamDep.SubDepartments = subDesps
+			iamDep.ParentName = existingIamDep.Name
 			return true
 		}
 
