@@ -6,7 +6,13 @@ import (
 	"github.com/duke-git/lancet/v2/convertor"
 	"github.com/duke-git/lancet/v2/fileutil"
 	"io/ioutil"
+	"path"
+	"strings"
 	"time"
+)
+
+const (
+	userMaxNumber = 300
 )
 
 func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPath *string,
@@ -51,16 +57,40 @@ func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPat
 	return depList, depMap
 }
 
-func ConvertUsers(srcUserFilePath *string, destUserFileDepPath *string, roles []string) []*IamUser {
-	users := loadUsers(srcUserFilePath, roles)
-	saveFile[*IamUserRoot](&IamUserRoot{Users: users}, destUserFileDepPath)
+func ConvertUsers(srcUserFilePath *string, destUserFileDepPath *string, roles []string, defaultPassword *string) []*IamUser {
+	users := loadUsers(srcUserFilePath, roles, defaultPassword)
+	userCount := len(users)
+
+	//每300个用户保存到一个文件
+	var fileCount int = (len(users) + userMaxNumber - 1) / userMaxNumber
+
+	if fileCount == 1 {
+		saveFile[*IamUserRoot](&IamUserRoot{Users: users}, destUserFileDepPath)
+	} else {
+		ext := path.Ext(*destUserFileDepPath)
+		base := path.Dir(*destUserFileDepPath)
+		file := path.Base(*destUserFileDepPath)
+
+		for i := 0; i < fileCount; i++ {
+			newFilePath := strings.ReplaceAll(file, ext, fmt.Sprintf("-%v%v", i, ext))
+			newFilePath = path.Join(base, newFilePath)
+			//0   300
+			//1  1*300 -> 2*300
+			if i == fileCount-1 {
+				saveFile[*IamUserRoot](&IamUserRoot{Users: users[i*userMaxNumber : userCount]}, &newFilePath)
+			} else {
+				saveFile[*IamUserRoot](&IamUserRoot{Users: users[i*userMaxNumber : (i+1)*userMaxNumber]}, &newFilePath)
+			}
+		}
+	}
+
 	return users
 }
 
 func ConvertAll(oaRootDepId *string, srcFilePath *string, destFileDepPath *string,
-	srcUserFilePath *string, destUserFileDepPath *string, roles []string) {
+	srcUserFilePath *string, destUserFileDepPath *string, roles []string, defaultPassword *string) {
 
-	users := ConvertUsers(srcUserFilePath, destUserFileDepPath, roles)
+	users := ConvertUsers(srcUserFilePath, destUserFileDepPath, roles, defaultPassword)
 	depList, depMap := ConvertDepartments(oaRootDepId, srcFilePath, destFileDepPath, false)
 
 	for _, user := range users {
@@ -77,7 +107,7 @@ func ConvertAll(oaRootDepId *string, srcFilePath *string, destFileDepPath *strin
 	saveFile[*IamDepartmentRoot](&IamDepartmentRoot{Departments: depList}, destFileDepPath)
 }
 
-func loadUsers(srcUserFilePath *string, roles []string) []*IamUser {
+func loadUsers(srcUserFilePath *string, roles []string, defaultPassword *string) []*IamUser {
 	var users = Import[OaUser](srcUserFilePath)
 
 	var userNameMap = make(map[int64]string)
@@ -102,7 +132,7 @@ func loadUsers(srcUserFilePath *string, roles []string) []*IamUser {
 				"上级领导": userNameMap[user.Reporter],
 			},
 			RealmRoles:      roles,
-			Credentials:     []*Credential{{"password", user.LoginName}},
+			Credentials:     []*Credential{{"password", *defaultPassword}},
 			RequiredActions: []string{"UPDATE_PASSWORD"},
 		}
 		addTime("入职时间", user.HireDate, iamUser)

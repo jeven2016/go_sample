@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	flag "github.com/spf13/pflag"
 	"move-repository/pkg/department"
-	"runtime"
 	"strings"
 )
 
@@ -14,40 +14,40 @@ var destFileDepPath *string = flag.StringP("destination-department-file", "d", "
 var srcUserFilePath *string = flag.StringP("source-user-file", "u", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/oa-user.json", "The source json file")
 var destUserFileDepPath *string = flag.StringP("destination-user-file", "o", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/iam-user.json", "The path to save the converted json file")
 var realRoles *string = flag.StringP("realm-roles", "r", "member", "the realm roles to configure for this use, multiple roles separate with comma. format: realm-role,member")
+var defaultPassword *string = flag.StringP("default-password", "p", "NextGen#2021", "initial password for each user")
 
 func main() {
 	flag.Parse()
 
 	// check all parameters should be specified
-	var params = &[]*string{importType, srcFilePath, destFileDepPath, realRoles}
+	var params = &[]*string{srcFilePath, destFileDepPath}
 	validateParams(params)
-	validateImportType(importType)
 
+	if len(*realRoles) == 0 {
+		panic("realm-roles is required")
+	}
 	var roles = strings.Split(*realRoles, ",")
-
-	runtime.GOMAXPROCS(5)
 
 	switch *importType {
 	case "department":
 		department.ConvertDepartments(oaRootDepId, srcFilePath, destFileDepPath, true)
 	case "user":
-		department.ConvertUsers(srcUserFilePath, destUserFileDepPath, roles)
+		department.ConvertUsers(srcUserFilePath, destUserFileDepPath, roles, defaultPassword)
 	case "all":
-		department.ConvertAll(oaRootDepId, srcFilePath, destFileDepPath, srcUserFilePath, destUserFileDepPath, roles)
-	}
-}
-
-func validateImportType(t *string) {
-	var importType = *t
-	if importType != "department" && importType != "user" && importType != "all" {
-		panic("invalid importType , it should be department or user")
+		department.ConvertAll(oaRootDepId, srcFilePath, destFileDepPath, srcUserFilePath, destUserFileDepPath, roles, defaultPassword)
+	default:
+		panic("invalid importType")
 	}
 }
 
 func validateParams(array *[]*string) {
 	for _, param := range *array {
 		if len(*param) == 0 {
-			panic("Some parameters are required")
+			panic("The parameters are required: source-department-file, destination-department-file, source-user-file, destination-user-file")
+		}
+		if !strings.HasSuffix(*param, ".json") && !strings.HasSuffix(*param, ".JSON") {
+			msg, _ := fmt.Printf("invalid file path, it should end with '.json' or '.JSON' (%v)", *param)
+			panic(msg)
 		}
 	}
 }
