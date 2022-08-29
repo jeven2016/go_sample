@@ -18,9 +18,16 @@ type OaUser struct {
 	PinyinHead   string `json:"pinyinhead,omitempty"`
 	EmailAddress string `json:"emailAddress"`
 	HireDate     int64  `json:"hiredate,omitempty"`
+	CreateTime   int64  `json:"createTime,omitempty"`
+	UpdateTime   int64  `json:"updateTime,omitempty"`
 	TelNumber    string `json:"telnumber,omitempty"`
 	Reporter     int64  `json:"reporter,omitempty"`
 	OrgLevelName string `json:"orgLevelName,omitempty"`
+}
+
+type Credential struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
 }
 
 type IamDepartmentUser struct {
@@ -28,9 +35,9 @@ type IamDepartmentUser struct {
 }
 
 type IamDepartment struct {
-	Id             int64                `json:"-"`
+	Id             int64                `json:"id"`
 	Name           string               `json:"name"`
-	ParentName     string               `json:"parentName"`
+	ParentName     string               `json:"parentName,omitempty"`
 	Priority       int                  `json:"priority"`
 	Enabled        bool                 `json:"enabled"`
 	Description    string               `json:"description"`
@@ -39,13 +46,15 @@ type IamDepartment struct {
 }
 
 type IamUser struct {
-	Username     string            `json:"username"`
-	FirstName    string            `json:"firstName"`
-	Enabled      bool              `json:"enabled"`
-	Email        string            `json:"email"`
-	DepartmentId int64             `json:"-"`
-	Attributes   map[string]string `json:"attributes"`
-	RealmRoles   []string          `json:"realmRoles"`
+	Username        string            `json:"username"`
+	FirstName       string            `json:"firstName"`
+	Enabled         bool              `json:"enabled"`
+	Email           string            `json:"email"`
+	DepartmentId    int64             `json:"-"`
+	Attributes      map[string]string `json:"attributes"`
+	RealmRoles      []string          `json:"realmRoles"`
+	Credentials     []*Credential     `json:"credentials"`
+	RequiredActions []string          `json:"requiredActions"`
 }
 
 type IamDepartmentRoot struct {

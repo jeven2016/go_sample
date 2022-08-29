@@ -9,7 +9,9 @@ import (
 	"time"
 )
 
-func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPath *string, writeFile bool) ([]*IamDepartment, map[int64]*IamDepartment) {
+func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPath *string,
+	writeFile bool) ([]*IamDepartment, map[int64]*IamDepartment) {
+
 	var oaDeps = Import[OaDepartment](srcFilePath)
 	var depList []*IamDepartment
 
@@ -20,11 +22,13 @@ func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPat
 
 	for _, dep := range *oaDeps {
 		iamDep := &IamDepartment{
-			Id:          dep.Id,
-			Name:        dep.Name,
-			Priority:    dep.SortId,
-			Enabled:     dep.Enabled,
-			Description: dep.WholeName,
+			Id:             dep.Id,
+			Name:           dep.Name,
+			Priority:       dep.SortId,
+			Enabled:        dep.Enabled,
+			Description:    dep.WholeName,
+			SubDepartments: []*IamDepartment{},
+			Users:          []*IamDepartmentUser{},
 		}
 
 		depMap[dep.Id] = iamDep
@@ -94,12 +98,16 @@ func loadUsers(srcUserFilePath *string, roles []string) []*IamUser {
 				"手机号":  user.TelNumber,
 				"拼音全名": user.Pinyin,
 				"拼音简称": user.PinyinHead,
-				"入职时间": time.Unix(user.HireDate, 0).Format("2006-01-02"),
-				"职务":   user.OrgLevelName,
+				"职务类别": user.OrgLevelName,
 				"上级领导": userNameMap[user.Reporter],
 			},
-			RealmRoles: roles,
+			RealmRoles:      roles,
+			Credentials:     []*Credential{{"password", user.LoginName}},
+			RequiredActions: []string{"UPDATE_PASSWORD"},
 		}
+		addTime("入职时间", user.HireDate, iamUser)
+		addTime("登记时间", user.CreateTime, iamUser)
+		addTime("上次更新", user.UpdateTime, iamUser)
 		iamUsers = append(iamUsers, iamUser)
 	}
 	return iamUsers
@@ -142,4 +150,11 @@ func saveFile[T any](data T, destFilePath *string) {
 
 	err = ioutil.WriteFile(*destFilePath, []byte(jsonData), 0664)
 	HandleError(err)
+}
+
+func addTime(key string, timeDate int64, iamUser *IamUser) {
+	if timeDate == 0 {
+		return
+	}
+	iamUser.Attributes[key] = time.UnixMilli(timeDate).Format("2006-01-02")
 }

@@ -4,8 +4,6 @@ import (
 	"api/pkg/common"
 	"api/pkg/dto"
 	"api/pkg/global"
-	"context"
-	"github.com/Nerzal/gocloak/v11"
 	"github.com/duke-git/lancet/v2/convertor"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -29,6 +27,7 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 			result, active := global.GlobalApp.AuthClient.Introspect(token)
 			if !active {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Result{Code: http.StatusUnauthorized, Message: "unauthorized user"})
+				return
 			}
 			data, err := convertor.ToJson(result)
 			if err != nil {
@@ -36,16 +35,20 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 			}
 			log.Info("Valid token checked", zap.String("url", c.Request.URL.String()), zap.String("result", data))
 
-			permissions, err := global.GlobalApp.AuthClient.Client.GetUserPermissions(context.Background(), token,
-				global.GlobalApp.AuthClient.Config.KeycloakRealm, gocloak.GetUserPermissionParams{})
-			for p := range permissions {
-				json, _ := convertor.ToJson(p)
-				log.Info("p", zap.String("json", json))
+			if !global.GlobalApp.AuthClient.Config.EnableAuth {
+				return
 			}
 
-			path := c.Request.URL.Path
-
-			log.Info("path" + path)
+			//permissions, err := global.GlobalApp.AuthClient.Client.GetUserPermissions(context.Background(), token,
+			//	global.GlobalApp.AuthClient.Config.KeycloakRealm, gocloak.GetUserPermissionParams{})
+			//for p := range permissions {
+			//	json, _ := convertor.ToJson(p)
+			//	log.Info("p", zap.String("json", json))
+			//}
+			//
+			//path := c.Request.URL.Path
+			//
+			//log.Info("path" + path)
 			//根据用户的accessToken获取rptToken, 获取用户所有的资源权限
 			rptToken, err := global.GlobalApp.AuthClient.GetRptToken(token)
 			checkToken, valid := global.GlobalApp.AuthClient.Introspect(rptToken.AccessToken)

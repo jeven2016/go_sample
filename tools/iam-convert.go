@@ -47,7 +47,7 @@ func validateImportType(t *string) {
 func validateParams(array *[]*string) {
 	for _, param := range *array {
 		if len(*param) == 0 {
-			panic("you should specify the cmd to run: handler or upload")
+			panic("Some parameters are required")
 		}
 	}
 }
