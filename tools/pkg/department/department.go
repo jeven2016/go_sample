@@ -26,7 +26,7 @@ func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPat
 
 	var depMap = make(map[int64]*IamDepartment)
 
-	for _, dep := range *oaDeps {
+	for _, dep := range oaDeps {
 		iamDep := &IamDepartment{
 			Id:             dep.Id,
 			Name:           dep.Name,
@@ -111,13 +111,13 @@ func loadUsers(srcUserFilePath *string, roles []string, defaultPassword *string)
 	var users = Import[OaUser](srcUserFilePath)
 
 	var userNameMap = make(map[int64]string)
-	for _, u := range *users {
+	for _, u := range users {
 		userNameMap[u.Id] = u.Name
 	}
 
 	var iamUsers []*IamUser
 
-	for _, user := range *users {
+	for _, user := range users {
 		iamUser := &IamUser{
 			DepartmentId: user.DepartmentId,
 			Username:     user.LoginName,
@@ -160,7 +160,7 @@ func appendChild(iamDep *IamDepartment, oaDep *OaDepartment, depList []*IamDepar
 	return false
 }
 
-func Import[T OaDepartment | OaUser](srcFilePath *string) *[]T {
+func Import[T OaDepartment | OaUser](srcFilePath *string) []T {
 	data, err := fileutil.ReadFileToString(*srcFilePath)
 	if err != nil {
 		panic(err)
@@ -171,7 +171,7 @@ func Import[T OaDepartment | OaUser](srcFilePath *string) *[]T {
 	if err != nil {
 		panic(err)
 	}
-	return &oaDeps
+	return oaDeps
 }
 
 func saveFile[T any](data T, destFilePath *string) {
