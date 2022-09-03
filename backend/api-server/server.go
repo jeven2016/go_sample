@@ -62,11 +62,7 @@ func main() {
 
 	//初始化OIDC client
 	authClient := &clients.AuthClient{Log: logger, Config: &config.AuthConfig}
-	err = authClient.StartInit()
-	if err == nil {
-		app.Log.Info("Initializing client for keycloak successfully")
-		app.MongoClient = mongoClient
-	}
+	authClient.StartInit()
 	app.AuthClient = authClient
 
 	//web初始化

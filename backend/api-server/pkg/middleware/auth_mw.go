@@ -14,6 +14,10 @@ import (
 // Auth , check if the request has valid Authorization header
 func Auth(log *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !global.GlobalApp.AuthClient.Config.EnableAuth {
+			return
+		}
+
 		bearHeader := c.GetHeader(common.Authorization)
 		if len(bearHeader) == 0 || !strings.Contains(bearHeader, common.Bearer) {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Result{Code: http.StatusUnauthorized, Message: "unauthorized user"})
@@ -35,10 +39,6 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 			}
 			log.Info("Valid token checked", zap.String("url", c.Request.URL.String()), zap.String("result", data))
 
-			if !global.GlobalApp.AuthClient.Config.EnableAuth {
-				return
-			}
-
 			//permissions, err := global.GlobalApp.AuthClient.Client.GetUserPermissions(context.Background(), token,
 			//	global.GlobalApp.AuthClient.Config.KeycloakRealm, gocloak.GetUserPermissionParams{})
 			//for p := range permissions {
@@ -50,23 +50,23 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 			//
 			//log.Info("path" + path)
 			//根据用户的accessToken获取rptToken, 获取用户所有的资源权限
-			rptToken, err := global.GlobalApp.AuthClient.GetRptToken(token)
-			checkToken, valid := global.GlobalApp.AuthClient.Introspect(rptToken.AccessToken)
-
-			if !valid {
-				log.Warn("The RPT token is failed to retrospect", zap.String("rpt token", rptToken.AccessToken))
-			} else {
-				for _, p := range *checkToken.Permissions {
-					var str = p.String()
-					log.Info("per", zap.String("str", str))
-				}
-			}
-
-			tokenNew, claims, err := global.GlobalApp.AuthClient.DecodeAccessToken(token)
-			if err == nil {
-				log.Info("tokenNew", zap.Bool("tn", tokenNew.Valid))
-				log.Info("token2", zap.Error(claims.Valid()))
-			}
+			//rptToken, err := global.GlobalApp.AuthClient.GetRptToken(token)
+			//checkToken, valid := global.GlobalApp.AuthClient.Introspect(rptToken.AccessToken)
+			//
+			//if !valid {
+			//	log.Warn("The RPT token is failed to retrospect", zap.String("rpt token", rptToken.AccessToken))
+			//} else {
+			//	for _, p := range *checkToken.Permissions {
+			//		var str = p.String()
+			//		log.Info("per", zap.String("str", str))
+			//	}
+			//}
+			//
+			//tokenNew, claims, err := global.GlobalApp.AuthClient.DecodeAccessToken(token)
+			//if err == nil {
+			//	log.Info("tokenNew", zap.Bool("tn", tokenNew.Valid))
+			//	log.Info("token2", zap.Error(claims.Valid()))
+			//}
 
 			return
 		}

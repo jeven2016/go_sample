@@ -1,42 +1,18 @@
 [
   {
-    "id": 123456,
-    "name": "执行委员会",
-    "sortId": 2,
-    "wholeName": "执行委员会",
+    "id": -7407519165300126030,
+    "name": "战略产品中心",
+    "sortId": 133,
+    "wholeName": "战略产品中心",
     "enabled": true,
     "superior": 670869647114347
   },
   {
-    "id": 123457,
-    "name": "技术委员会",
-    "sortId": 2,
-    "wholeName": "技术委员会",
+    "id": -7682915203269704164,
+    "name": "黑洞实验室",
+    "sortId": 133,
+    "wholeName": "战略产品中心-黑洞实验室",
     "enabled": true,
-    "superior": 670869647114347
-  },
-  {
-    "id": 123458,
-    "name": "二级部门",
-    "sortId": 2,
-    "wholeName": "执行委员会-二级部门",
-    "enabled": true,
-    "superior": 123457
-  },
-  {
-    "id": 123459,
-    "name": "二级部门2",
-    "sortId": 2,
-    "wholeName": "执行委员会-二级部门2",
-    "enabled": true,
-    "superior": 123457
-  },
-  {
-    "id": 123460,
-    "name": "三级部门",
-    "sortId": 2,
-    "wholeName": "执行委员会-三级部门",
-    "enabled": true,
-    "superior": 123459
+    "superior": -7407519165300126030
   }
 ]

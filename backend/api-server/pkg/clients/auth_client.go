@@ -2,7 +2,6 @@ package clients
 
 import (
 	"api/pkg/common"
-	"errors"
 	"github.com/golang-jwt/jwt/v4"
 
 	//"api/pkg/common"
@@ -17,17 +16,17 @@ type AuthClient struct {
 	Log    *zap.Logger
 }
 
-func (c *AuthClient) StartInit() error {
+func (c *AuthClient) StartInit() {
 	authCfg := c.Config
 
 	if !authCfg.EnableAuth {
-		return errors.New("auth: OpenID connect feature is not enabled")
+		c.Log.Warn("Authentication is not enabled")
+		return
 	}
 
 	client := gocloak.NewClient(c.Config.KeycloakUrl, gocloak.SetAuthRealms("realms"),
 		gocloak.SetAuthAdminRealms("admin/realms"))
 	c.Client = client
-	return nil
 }
 
 //Introspect Normal case:

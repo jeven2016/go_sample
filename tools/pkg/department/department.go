@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/duke-git/lancet/v2/convertor"
+	list "github.com/duke-git/lancet/v2/datastructure/list"
 	"github.com/duke-git/lancet/v2/fileutil"
 	"io/ioutil"
 	"path"
@@ -23,6 +24,22 @@ func ConvertDepartments(oaRootDepId *string, srcFilePath *string, destFileDepPat
 
 	rootId, err := convertor.ToInt(*oaRootDepId)
 	HandleError(err)
+
+	var orderedList = list.NewList([]OaDepartment{})
+
+	//确保所有的父节点要在子节点前创建，所以需要将父节点在自己的子节点排列
+	for _, dep := range oaDeps {
+		position := orderedList.IndexOfFunc(func(d OaDepartment) bool {
+			return d.Superior == dep.Id
+		})
+		if position >= 0 {
+			orderedList.InsertAt(position, dep)
+		} else {
+			orderedList.InsertAtLast(dep)
+		}
+	}
+
+	oaDeps = orderedList.Data()
 
 	var depMap = make(map[int64]*IamDepartment)
 

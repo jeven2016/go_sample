@@ -8,8 +8,8 @@ import (
 )
 
 var oaRootDepId *string = flag.StringP("rootId", "i", "670869647114347", "The root id of departments defined in OA json file")
-var importType *string = flag.StringP("importType", "t", "all", "The type of json file, valid values: department, user, all")
-var srcFilePath *string = flag.StringP("source-department-file", "s", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/oa-dep.json", "The source json file")
+var importType *string = flag.StringP("importType", "t", "department", "The type of json file, valid values: department, user, all")
+var srcFilePath *string = flag.StringP("source-department-file", "s", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/office-department.json", "The source json file")
 var destFileDepPath *string = flag.StringP("destination-department-file", "d", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/iam-dep.json", "The path to save the converted json file")
 var srcUserFilePath *string = flag.StringP("source-user-file", "u", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/oa-user.json", "The source json file")
 var destUserFileDepPath *string = flag.StringP("destination-user-file", "o", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/iam-user.json", "The path to save the converted json file")
