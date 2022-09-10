@@ -117,6 +117,7 @@ go env -w GOPROXY=https://goproxy.cn,direct
 
 ### 集成keycloak
 https://zhuanlan.zhihu.com/p/488194876
+https://www.coder.work/article/25589
 ```shell
 
 ```

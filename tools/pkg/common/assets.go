@@ -24,6 +24,7 @@ type Item struct {
 }
 
 type AssetMetaData struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
+	Name             string `json:"name"`
+	Path             string `json:"path"` // URi path not file path
+	AbsoluteFilePath string `json:"absoluteFilePath"`
 }

@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	flag "github.com/spf13/pflag"
-	"move-repository/pkg/department"
 	"strings"
+
+	flag "github.com/spf13/pflag"
+
+	"move-repository/pkg/department"
 )
 
 var oaRootDepId *string = flag.StringP("rootId", "i", "670869647114347", "The root id of departments defined in OA json file")

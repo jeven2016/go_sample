@@ -1,9 +1,12 @@
 package common
 
+import "io/fs"
+
 type Config struct {
-	General General `mapstructure:"general,omitempty"`
-	Nexus   Nexus   `mapstructure:"nexus,omitempty"`
-	Jfrog   Jfrog   `mapstructure:"jfrog,omitempty"`
+	General   General   `mapstructure:"general,omitempty"`
+	Nexus     Nexus     `mapstructure:"nexus,omitempty"`
+	Jfrog     Jfrog     `mapstructure:"jfrog,omitempty"`
+	Verdaccio Verdaccio `mapstructure:"verdaccio,omitempty"`
 }
 
 type General struct {
@@ -29,4 +32,13 @@ type Jfrog struct {
 	ApiKey     string `mapstructure:"api_key,omitempty"`
 	Username   string `mapstructure:"username,omitempty"`
 	Repository string `mapstructure:"repository,omitempty"`
+}
+
+type Verdaccio struct {
+	Storage string `mapstructure:"storage,omitempty"`
+}
+
+type PackageJsonInfo struct {
+	FileInfo fs.FileInfo
+	FilePath string
 }

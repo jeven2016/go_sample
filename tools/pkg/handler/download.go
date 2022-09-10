@@ -3,18 +3,20 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"github.com/duke-git/lancet/v2/convertor"
-	"github.com/duke-git/lancet/v2/fileutil"
-	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 	"io/ioutil"
-	"move-repository/pkg/common"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/duke-git/lancet/v2/convertor"
+	"github.com/duke-git/lancet/v2/fileutil"
+	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
+
+	"move-repository/pkg/common"
 )
 
 const urlSeparator = "/"
@@ -23,6 +25,7 @@ var once = sync.Once{}
 
 var client *resty.Client
 
+// Download 从nexus上下载仓库下的包
 func Download(ctx context.Context) {
 	config := ctx.Value("config").(*common.Config)
 	logger := ctx.Value("logger").(*zap.Logger)
@@ -44,7 +47,7 @@ func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.
 	nexusCfg := config.Nexus
 
 	var assetCount, pages = 0, 0
-	var continuationToken string //the token to fetch the next list of assets
+	var continuationToken string // the token to fetch the next list of assets
 
 	defer func() {
 		close(itemChan)
@@ -103,7 +106,7 @@ func makeUrl(nexusCfg common.Nexus, continuationToken string) string {
 		panic("the baseUrl of nexus is mandatory, you should define it in config file")
 	}
 
-	//http://localhost:8081/service/rest/v1/components?repository=npm-proxy
+	// http://localhost:8081/service/rest/v1/components?repository=npm-proxy
 	var url = strings.TrimRight(nexusCfg.BaseUrl, urlSeparator) + "/service/rest/v1/components?repository=" + nexusCfg.Repository
 	if continuationToken != "" {
 		url += "&continuationToken=" + continuationToken
@@ -147,7 +150,7 @@ func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, con
 		return
 	}
 
-	//save metadata
+	// save metadata
 	err := writeMedata(asset, directory, fileName, assetName(asset.Path))
 
 	if err != nil {

@@ -2,26 +2,35 @@ package main
 
 import (
 	"context"
+	"runtime"
+
 	"github.com/duke-git/lancet/v2/convertor"
+	"github.com/duke-git/lancet/v2/slice"
 	flag "github.com/spf13/pflag"
 	"go.uber.org/zap"
+
 	"move-repository/pkg/common"
 	"move-repository/pkg/handler"
-	"runtime"
 )
 
 var configPath *string = flag.StringP("config", "c", "", "The path of config file")
-var command *string = flag.StringP("command", "m", "", "The supported command: download, upload ")
+var command *string = flag.StringP("command", "m", "upload", "The supported command: download, upload ")
+var repoType *string = flag.StringP("source-repository-type", "t", "verdaccio", "The type of repository that has packages stored and need to upload into JFrog, it can only be: nexus or verdaccio")
+
+// supported repositories
+var repos = []string{"nexus", "verdaccio"}
 
 func main() {
 	flag.Parse()
 	config, _ := common.SetupViper(*configPath)
 
 	if len(*command) == 0 {
-		panic("you should specify the command to run: handler or upload")
+		panic("you should specify the command to run: download or upload")
 	}
 
-	//log初始化
+	validateRepoType(repoType)
+
+	// log初始化
 	logger := common.SetupLog(*config)
 	defer logger.Sync()
 
@@ -38,7 +47,21 @@ func main() {
 	case "download":
 		handler.Download(ctx)
 	case "upload":
-		handler.Upload(ctx)
+		if *repoType == "verdaccio" {
+			handler.NewVerdaccioUploader(ctx).Upload()
+		} else {
+			handler.NewNexusUploader(ctx).Upload()
+		}
 	}
 	select {}
+}
+
+func validateRepoType(repoType *string) {
+	if !slice.Contain(repos, *repoType) {
+		panic("unsupported type of repository, it should be : nexus or verdaccio")
+	}
+}
+
+func show(h *handler.Uploader) {
+
 }
