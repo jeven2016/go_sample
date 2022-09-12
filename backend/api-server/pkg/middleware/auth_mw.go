@@ -40,7 +40,6 @@ func Auth(log *zap.Logger) gin.HandlerFunc {
 				log.Warn("the data isn't in json format", zap.String("result", result.String()))
 			}
 			log.Info("Valid token checked", zap.String("url", c.Request.URL.String()), zap.String("result", data))
-
 			// permissions, err := global.GlobalApp.AuthClient.Client.GetUserPermissions(context.Background(), token,
 			//	global.GlobalApp.AuthClient.Config.KeycloakRealm, gocloak.GetUserPermissionParams{})
 			// for p := range permissions {
