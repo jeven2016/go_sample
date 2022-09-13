@@ -24,3 +24,8 @@ type Article struct {
 	Content    string             `bson:"content,omitempty" json:"content"`
 	CreateDate time.Time          `bson:"createDate" json:"createDate"`
 }
+
+type ArticlePage struct {
+	Name string
+	Url  string
+}
