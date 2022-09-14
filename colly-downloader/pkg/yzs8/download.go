@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-creed/sat"
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/extensions"
-	"github.com/liuzl/gocc"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
@@ -28,30 +30,13 @@ var baseUrl string
 
 var log = initLog()
 
-// ensureCatalog, return existed, error
-func ensureCatalog(collection *mongo.Collection, catalog *models.CatalogDoc) (string, error) {
-	result := collection.FindOne(context.TODO(), bson.M{"name": catalog.Name})
-	err := result.Err()
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			insertResult, err := collection.InsertOne(context.TODO(), catalog)
-
-			return insertResult.InsertedID.(string), err
-		}
-		return "", err
-	}
-	catalog = new(models.CatalogDoc)
-	err = result.Decode(catalog)
-	if err != nil {
-		return "", err
-	}
-	return catalog.Id.String(), err
-}
-
 func Start() {
 	go func() {
 		wg.Wait()
 	}()
+
+	// Traditional Chinese to Simplified Chinese
+	zhConvertor := sat.DefaultDict()
 
 	db, err := CreateMongoClient(log)
 	if err != nil {
@@ -59,7 +44,7 @@ func Start() {
 	}
 	collection := db.Collection("catalog")
 
-	catalogId, existed := ensureCollection(collection, err)
+	catalogId, existed := ensure(collection)
 	if !existed {
 		return
 	}
@@ -67,34 +52,61 @@ func Start() {
 	collector := newCollector()
 	homeUrl := "https://yazhouse8.com/article.php?cate=1"
 	baseUrl = getBaseUri(homeUrl)
-	parsePageLinks(homeUrl, collector, articlesChan)
+	parsePageLinks(homeUrl, collector, articlesChan, zhConvertor)
 
-	zhConvertor, err := gocc.New("s2t")
-	if err != nil {
-		log.Error("i18n convertor error", zap.Error(err))
-	}
-	for i := 0; i < 3; i++ {
-		downloadArticle(i, collection, articlesChan, zhConvertor, catalogId)
+	for i := 0; i < 1; i++ {
+		downloadArticle(i, collection, articlesChan, zhConvertor, catalogId, collector.Clone())
 	}
 }
 
-func ensureCollection(catalogCol *mongo.Collection, err error) (string, bool) {
-	individualCatalog := &models.CatalogDoc{
-		Name:         "yzs8",
+func ensure(catalogCol *mongo.Collection) (*primitive.ObjectID, bool) {
+	c := &models.CatalogDoc{
+		Name:         "亚洲色吧",
 		Order:        1,
 		ArticleCount: 0,
-		Description:  "yzs8",
+		Description:  "",
 		CreateDate:   time.Now(),
 		LastUpdate:   time.Now(),
 	}
-
-	catalogId, err := ensureCatalog(catalogCol, individualCatalog)
-	if err != nil {
-		log.Error("failed to check the catalog", zap.Error(err))
-		return "", false
+	id, succeed := ensureCollection(catalogCol, c)
+	if succeed {
+		c := &models.CatalogDoc{
+			Name:         "都市激情",
+			ParentId:     *id,
+			Order:        1,
+			ArticleCount: 0,
+			Description:  "都市激情，激情小说合集",
+			CreateDate:   time.Now(),
+			LastUpdate:   time.Now(),
+		}
+		id, succeed = ensureCollection(catalogCol, c)
+		return id, succeed
 	}
-	log.Info("catalog id is", zap.String("id", catalogId))
-	return catalogId, true
+	return id, succeed
+}
+
+func ensureCollection(catalogCol *mongo.Collection, catalog *models.CatalogDoc) (*primitive.ObjectID, bool) {
+	result := catalogCol.FindOne(context.TODO(), bson.M{"name": catalog.Name})
+	err := result.Err()
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			insertResult, err := catalogCol.InsertOne(context.TODO(), catalog)
+			if err != nil {
+				log.Warn("Failed to insert on catalog", zap.Error(err))
+			}
+			id := insertResult.InsertedID.(primitive.ObjectID)
+			return &id, err == nil
+		}
+		return nil, false
+	}
+	catalog = new(models.CatalogDoc)
+	err = result.Decode(catalog)
+	if err != nil {
+		return nil, false
+	}
+	catalogId := catalog.Id
+	log.Info("catalog id is", zap.String("id", catalogId.String()))
+	return &catalogId, true
 }
 
 // New collector
@@ -137,11 +149,16 @@ func getBaseUri(url string) string {
 
 var at = atomic.NewInt32(0)
 
-func parsePageLinks(homeUrl string, collector *colly.Collector, urlChan chan<- *models.ArticlePage) {
-	parseArticles(homeUrl, collector, urlChan)
+func parsePageLinks(homeUrl string, collector *colly.Collector, urlChan chan<- *models.ArticlePage, zhConvertor sat.Dicter) {
+	collector.OnHTML(".articleList>p>.img-center", func(element *colly.HTMLElement) {
+		urlChan <- &models.ArticlePage{
+			Name: strings.TrimSpace(zhConvertor.Read(element.Text)),
+			Url:  baseUrl + element.Attr("href"),
+		}
+	})
 
 	collector.OnHTML(".pager a[href]", func(element *colly.HTMLElement) {
-		if at.Load() >= 2 {
+		if at.Load() >= 1 {
 			return
 		}
 		text := element.Text
@@ -157,39 +174,57 @@ func parsePageLinks(homeUrl string, collector *colly.Collector, urlChan chan<- *
 	handleError(collector.Visit(homeUrl))
 }
 
-func parseArticles(pageUrl string, c *colly.Collector, artChan chan<- *models.ArticlePage) {
-	c.OnHTML(".articleList>p>.img-center", func(element *colly.HTMLElement) {
-		artChan <- &models.ArticlePage{Name: element.Text, Url: element.Attr("href")}
-	})
-}
-
 func downloadArticle(taskId int, collection *mongo.Collection, urlChan <-chan *models.ArticlePage,
-	zhConvertor *gocc.OpenCC, catalogId string) {
-	for artPage := range urlChan {
-		documents, err := collection.CountDocuments(context.TODO(), bson.M{"name": artPage.Name})
+	zhConvertor sat.Dicter, catalogId *primitive.ObjectID, c *colly.Collector) {
+	// load article page and get the content to save
+	// .articleList>.content>div
+	c.OnHTML(".articleList>.content>div", func(element *colly.HTMLElement) {
+		artPage := element.Request.Ctx.GetAny("articlePage").(*models.ArticlePage)
+		content, err := element.DOM.Html()
 		if err != nil {
-			log.Warn("failed to count documents with name",
-				zap.Error(err), zap.String("name", artPage.Name))
-			continue
-		}
-		if documents > 0 {
-			log.Info("document exists, ignored", zap.String("name", artPage.Name))
-			continue
+			log.Warn("failed to get the content",
+				zap.Error(err), zap.String("url", element.Request.URL.String()))
+			return
 		}
 
-		// load article page and get the content to save
+		if len(strings.TrimSpace(content)) == 0 {
+			log.Info("Content is blank", zap.String("name", artPage.Name), zap.String("url", artPage.Url))
+			return
+		}
+		content = strings.TrimRight(content, "==记住==")
 
 		_, err = collection.InsertOne(context.TODO(), models.Article{
 			Name:      artPage.Name,
-			CatalogId: catalogId,
+			CatalogId: *catalogId,
 			Content:   content,
 		})
 		if err != nil {
-			log.Warn("failed to insert document with name",
+			log.Error("failed to insert document with name",
 				zap.Error(err), zap.String("name", artPage.Name))
-			continue
+			return
 		}
 		log.Info("Inserted a document", zap.String("name", artPage.Name))
+	})
+
+	ctx := colly.NewContext()
+	for artPage := range urlChan {
+		realName := artPage.Name
+
+		// 过滤掉重复的article
+		count, err := collection.CountDocuments(context.TODO(), bson.M{"name": bson.M{"$regex": realName}})
+		if err != nil {
+			log.Warn("failed to count documents with name",
+				zap.Error(err), zap.String("name", realName))
+			continue
+		}
+		if count > 0 {
+			log.Info("document exists, ignored", zap.String("name", realName))
+			continue
+		}
+		// 加载文章
+		// 为了使用colly.Context向onHTML中传递参数，使用Request替代Visit
+		ctx.Put("articlePage", artPage)
+		handleError(c.Request("GET", artPage.Url, nil, ctx, nil))
 	}
 }
 
