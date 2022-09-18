@@ -1,12 +1,12 @@
-package main
+package strings_test
 
 import "fmt"
 
 func variable() {
-	//define variables
-	var a int32 = 1 //添加了类型
+	// define variables
+	var a int32 = 1 // 添加了类型
 	var b = 32
-	c := 33 //定义一个新的变量
+	c := 33 // 定义一个新的变量
 
 	const ca = "const"
 
@@ -19,7 +19,7 @@ func change() {
 	a := 1
 	b := 2
 
-	//交换a和b
+	// 交换a和b
 	a, b = b, a
 
 	fmt.Println()

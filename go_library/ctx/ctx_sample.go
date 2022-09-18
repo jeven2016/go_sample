@@ -15,8 +15,8 @@ func other(ctx context.Context) {
 }
 
 func WithValue() {
-	//传递共享值的context
-	ctx := context.Background() //先创建一个空的根context
+	// 传递共享值的context
+	ctx := context.Background() // 先创建一个空的根context
 	subCtx := context.WithValue(ctx, "param", "value")
 
 	go func() {
@@ -33,8 +33,8 @@ func WithValue() {
 	runtime.Gosched()
 }
 
-//-----------------------------------------------------------------------------------------
-//创建一个可以生产-消费的队列
+// -----------------------------------------------------------------------------------------
+// 创建一个可以生产-消费的队列
 var msgChan = make(chan string, 20)
 
 var wg = sync.WaitGroup{}
@@ -44,7 +44,7 @@ func WithCancel() {
 	println("============================================")
 	wg.Add(2)
 
-	//创建一个可以取消的context
+	// 创建一个可以取消的context
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
 	go func(ctx context.Context) {
@@ -57,7 +57,7 @@ func WithCancel() {
 				println("Cancel go routine1")
 				return
 			default:
-				//生产消息
+				// 生产消息
 				msgChan <- fmt.Sprintf("msg %d", i)
 				println("go1 generate", i)
 				i += 1
@@ -74,7 +74,7 @@ func WithCancel() {
 				println("Cancel go routine2")
 				return
 			case msg := <-msgChan:
-				//消费消息
+				// 消费消息
 				println("consume msg: ", msg)
 				time.Sleep(2)
 			}
@@ -82,11 +82,11 @@ func WithCancel() {
 
 	}(ctx)
 
-	//运行九秒后停止生产和消费
+	// 运行九秒后停止生产和消费
 	time.Sleep(5 * time.Second)
 	cancelFunc()
-	println("cancel main now")
+	println("cancel strings_test now")
 
-	//等待所有的goroutine退出
+	// 等待所有的goroutine退出
 	wg.Wait()
 }

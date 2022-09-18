@@ -1,15 +1,16 @@
-package main
+package strings_test
 
 import (
 	"fmt"
+
 	"samples/io_samples"
 )
 
 func init() {
-	println("main.go_sample init()")
+	println("strings_test.go_sample init()")
 }
 
-//闭包
+// 闭包
 func specialFunc(num int) func() int {
 	inner := num
 	return func() int {
@@ -104,28 +105,28 @@ func main() {
 		println("=========TrySelectChan============")
 		routine.TrySelectChan()
 	*/
-	//println("========================")
-	//time_test.TimeoutFunc()
+	// println("========================")
+	// time_test.TimeoutFunc()
 	//
-	//println("=============time after===================")
-	//time_test.TimeAfter()
-	//time_test.Time_ticket()
-	//time_test.Time_after()
+	// println("=============time after===================")
+	// time_test.TimeAfter()
+	// time_test.Time_ticket()
+	// time_test.Time_after()
 
-	//println("=================Lock====================")
-	//lock.MutexSample()
-	//lock.RwLock()
+	// println("=================Lock====================")
+	// lock.MutexSample()
+	// lock.RwLock()
 
 	io_samples.Filepath_func()
 
-	//io_samples.Ioutil_sample()
+	// io_samples.Ioutil_sample()
 
-	//io_samples.FileAction()
-	//jeven.RunState()
+	// io_samples.FileAction()
+	// jeven.RunState()
 
-	//reflect_samples.ReflectType()
-	//reflect_samples.ReflectValue()
+	// reflect_samples.ReflectType()
+	// reflect_samples.ReflectValue()
 
-	//ReplaceString()
+	// ReplaceString()
 
 }

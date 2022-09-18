@@ -14,7 +14,7 @@ import (
 )
 
 var configPath *string = flag.StringP("config", "c", "", "The path of config file")
-var command *string = flag.StringP("command", "m", "upload", "The supported command: download, upload ")
+var command *string = flag.StringP("command", "m", "download", "The supported command: download, upload ")
 var repoType *string = flag.StringP("source-repository-type", "t", "verdaccio", "The type of repository that has packages stored and need to upload into JFrog, it can only be: nexus or verdaccio")
 
 // supported repositories

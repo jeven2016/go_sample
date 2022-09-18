@@ -63,7 +63,10 @@ func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.
 		}
 		url := makeUrl(nexusCfg, continuationToken)
 
-		res, err := restyClient(config.General.UploadTimeout).R().SetBasicAuth(nexusCfg.Username, nexusCfg.Password).Get(url)
+		res, err := restyClient(config.General.UploadTimeout).
+			R().
+			// SetBasicAuth(nexusCfg.Username, nexusCfg.Password).
+			Get(url)
 		if err != nil {
 			logger.Warn("failed to get list of components",
 				zap.String("repository", nexusCfg.Repository),

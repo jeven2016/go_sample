@@ -1,8 +1,8 @@
-package main
+package strings_test
 
 import "fmt"
 
-//same functions
+// same functions
 func sum(number1 int, number2 int) (int, int) {
 	return number1 + number2, number1
 }

@@ -1,11 +1,13 @@
-package main
+package strings_test
 
 import (
 	"path/filepath"
 	"regexp"
+	"strings"
+	"testing"
 )
 
-func ReplaceString() {
+func TestStringReplacing(t *testing.T) {
 	desc := "[Thz.la]gtj-060.mp4"
 	reg := regexp.MustCompile("(\\[.*?])|(.*?原版首发_)|(.*?@)")
 	println(reg.ReplaceAllString(desc, ""))
@@ -15,4 +17,9 @@ func ReplaceString() {
 	path := "d:\\sdf\\sdf\\dfgk\\xx.mp4"
 	slash := filepath.FromSlash(path)
 	println(filepath.Dir(slash))
+
+	value := "this is a test in this country"
+	trimRight := strings.TrimRight(value, "this")
+	println(trimRight)
+
 }

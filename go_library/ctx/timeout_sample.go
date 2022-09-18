@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-//-----------------------------------------------------------------------------------------
-//创建一个可以生产-消费的队列
+// -----------------------------------------------------------------------------------------
+// 创建一个可以生产-消费的队列
 var channel = make(chan string, 20)
 
 var wgr = sync.WaitGroup{}
@@ -18,9 +18,9 @@ func WithTimeout() {
 	println("============================================")
 	wgr.Add(2)
 
-	//创建一个3秒后超时的context, 也可以提前退出
+	// 创建一个3秒后超时的context, 也可以提前退出
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	//context.WithDeadline(context.Background(), time.Time{ })
+	// context.WithDeadline(context.Background(), time.Time{ })
 
 	go func(ctx context.Context) {
 		defer wgr.Done()
@@ -32,7 +32,7 @@ func WithTimeout() {
 				println("Cancel go routine1")
 				return
 			default:
-				//生产消息
+				// 生产消息
 				channel <- fmt.Sprintf("msg %d", i)
 				println("go1 generate", i)
 				i += 1
@@ -49,7 +49,7 @@ func WithTimeout() {
 				println("Cancel go routine2")
 				return
 			case msg := <-channel:
-				//消费消息
+				// 消费消息
 				println("consume msg: ", msg)
 				time.Sleep(2)
 			}
@@ -57,11 +57,11 @@ func WithTimeout() {
 
 	}(ctx)
 
-	//运行九秒后停止生产和消费
+	// 运行九秒后停止生产和消费
 	time.Sleep(5 * time.Second)
-	//cancelFunc()
-	//println("cancel main now")
+	// cancelFunc()
+	// println("cancel strings_test now")
 
-	//等待所有的goroutine退出
+	// 等待所有的goroutine退出
 	wgr.Wait()
 }

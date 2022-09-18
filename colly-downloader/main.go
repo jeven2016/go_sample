@@ -1,9 +1,15 @@
 package main
 
-import "colly-downloader/pkg/yzs8"
+import (
+	"runtime"
+
+	"colly-downloader/pkg/yzs8"
+)
 
 func main() {
 
+	runtime.GOMAXPROCS(4)
 	yzs8.Start()
 
+	select {}
 }

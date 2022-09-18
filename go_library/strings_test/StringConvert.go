@@ -1,4 +1,4 @@
-package main
+package strings_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ func convertString() {
 	var boolVal bool = true
 	fmt.Printf("boolValue=%v  type=%T\n", boolVal, boolVal)
 
-	//返回两个参数，不关心第二个error返回，
+	// 返回两个参数，不关心第二个error返回，
 	boolVal, _ = strconv.ParseBool("true")
 	fmt.Printf("parsed from string boolValue=%v type=%T\n", boolVal, boolVal)
 
