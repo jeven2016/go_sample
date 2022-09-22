@@ -42,3 +42,15 @@ func (a *ArticlePage) MarshalBinary() ([]byte, error) {
 func (a *ArticlePage) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, a)
 }
+
+type CatalogDocMap struct {
+	// 添加omitempty，当为空时，mongo driver会自动生成
+	Id           any       `bson:"_id,omitempty" json:"id"`
+	ParentId     any       `bson:"parentId,omitempty" json:"parentId"`
+	Name         string    `bson:"name" json:"name"`
+	Order        int32     `bson:"order" json:"order"`
+	ArticleCount int32     `bson:"articleCount" json:"articleCount"`
+	Description  string    `bson:"description" json:"description"`
+	CreateDate   time.Time `bson:"createDate" json:"createDate"`
+	LastUpdate   time.Time `bson:"lastUpdate" json:"lastUpdate"`
+}

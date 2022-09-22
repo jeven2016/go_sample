@@ -1,18 +1,21 @@
 package service
 
 import (
+	"context"
+	"errors"
+	"math"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
+
 	dto2 "api/app/books/dto"
 	"api/app/books/entitie"
 	"api/pkg/common"
 	"api/pkg/dto"
 	"api/pkg/global"
-	"context"
-	"errors"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.uber.org/zap"
-	"math"
 )
 
 type ArticleService struct {
@@ -29,8 +32,13 @@ func NewArticleService(app *global.App) *ArticleService {
 
 func (artSrv ArticleService) FindById(id string) (*entitie.Article, error) {
 	articleEntity := &entitie.Article{}
-	result := artSrv.article.FindOne(context.TODO(), bson.M{"_id": id})
-	err := result.Err()
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		artSrv.log.Warn("Invalid objectId", zap.String("id", id), zap.Error(err))
+		return nil, err
+	}
+	result := artSrv.article.FindOne(context.TODO(), bson.M{"_id": objectId})
+	err = result.Err()
 	if err != nil {
 		artSrv.log.Warn("Cannot findById(id)", zap.String("id", id), zap.Error(err))
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -46,11 +54,11 @@ func (artSrv ArticleService) FindById(id string) (*entitie.Article, error) {
 }
 
 func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageRequest) (*dto2.ArticlePageResponse, error) {
-	var results = new([]*entitie.Article) //分配空间返回地址
+	var results = new([]*entitie.Article) // 分配空间返回地址
 	findOpt := options.Find()
 	findOpt.SetLimit(int64(pageRequest.PageSize))
 	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
-	findOpt.SetProjection(bson.M{"content": 0}) //不包含content内容
+	findOpt.SetProjection(bson.M{"content": 0}) // 不包含content内容
 
 	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catalogId}, findOpt)
 	if err != nil {
@@ -67,8 +75,8 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageReque
 		artSrv.log.Warn("An error occurs while decoding a book article", zap.Error(err))
 		return nil, err
 	}
-	//第二种方法，迭代每一个对象处理
-	//for cursor.Next(context.TODO()) {
+	// 第二种方法，迭代每一个对象处理
+	// for cursor.Next(context.TODO()) {
 	//	var article *entitie.Article
 	//	err := cursor.Decode(&article)
 	//	if err != nil {
@@ -76,9 +84,9 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageReque
 	//		return nil, err
 	//	}
 	//	results = append(results, article)
-	//}
+	// }
 
-	//查询总条数
+	// 查询总条数
 	countOptions := &options.CountOptions{}
 	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"catalogId": catalogId}, countOptions)
 	if err != nil {
@@ -100,7 +108,7 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageReque
 }
 
 func (artSrv *ArticleService) Search(pageRequest *dto2.PageRequest) (*dto2.ArticlePageResponse, error) {
-	//options.
+	// options.
 	findOpt := options.Find()
 	findOpt.SetLimit(int64(pageRequest.PageSize))
 	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
@@ -117,7 +125,7 @@ func (artSrv *ArticleService) Search(pageRequest *dto2.PageRequest) (*dto2.Artic
 		artSrv.log.Warn("An error occurs while counting articles", zap.Error(err))
 		return nil, err
 	}
-	var results = new([]*entitie.Article) //分配空间返回地址
+	var results = new([]*entitie.Article) // 分配空间返回地址
 	err = cursor.All(context.TODO(), results)
 	if err != nil {
 		artSrv.log.Warn("An error occurs while converting articles", zap.Error(err))

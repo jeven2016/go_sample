@@ -9,7 +9,8 @@ import (
 func main() {
 
 	runtime.GOMAXPROCS(4)
-	yzs8.Start()
+	// yzs8.Start()
 
+	yzs8.ConvertCatalog()
 	select {}
 }

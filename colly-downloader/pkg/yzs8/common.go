@@ -22,7 +22,7 @@ func CreateMongoClient(log *zap.Logger) (*mongo.Client, error) {
 
 	// 连接MongoDB
 	client, err := mongo.Connect(ctx, options.Client().
-		ApplyURI("mongodb://db_user:db_pwd@192.168.1.14:27017/books?retryWrites=true&w=majority&authSource=admin&maxPoolSize=20"))
+		ApplyURI("mongodb://db_user:db_pwd@localhost:27017/books?retryWrites=true&w=majority&authSource=admin&maxPoolSize=20"))
 
 	if err != nil {
 		log.Error("Cannot connect to mongodb", zap.Error(err))
