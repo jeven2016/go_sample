@@ -11,6 +11,6 @@ func main() {
 	runtime.GOMAXPROCS(4)
 	// yzs8.Start()
 
-	yzs8.ConvertCatalog()
+	yzs8.Convert()
 	select {}
 }

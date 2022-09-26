@@ -74,7 +74,7 @@ func Start() {
 	}
 }
 
-func ensure(catalogCol *mongo.Collection) (string, bool) {
+func ensure(catalogCol *mongo.Collection) (*primitive.ObjectID, bool) {
 	c := &models.CatalogDoc{
 		Name:         "--",
 		Order:        1,
@@ -87,7 +87,7 @@ func ensure(catalogCol *mongo.Collection) (string, bool) {
 	if succeed {
 		c := &models.CatalogDoc{
 			Name:         "--",
-			ParentId:     id,
+			ParentId:     *id,
 			Order:        11,
 			ArticleCount: 0,
 			Description:  "--",
@@ -101,7 +101,7 @@ func ensure(catalogCol *mongo.Collection) (string, bool) {
 }
 
 // ensure valid catalog id to return
-func ensureCollection(catalogCol *mongo.Collection, catalog *models.CatalogDoc) (string, bool) {
+func ensureCollection(catalogCol *mongo.Collection, catalog *models.CatalogDoc) (*primitive.ObjectID, bool) {
 	result := catalogCol.FindOne(context.TODO(), bson.M{"name": catalog.Name})
 	err := result.Err()
 	if err != nil {
@@ -110,19 +110,19 @@ func ensureCollection(catalogCol *mongo.Collection, catalog *models.CatalogDoc) 
 			if err != nil {
 				log.Warn("Failed to insert on catalog", zap.Error(err))
 			}
-			id := insertResult.InsertedID.(primitive.ObjectID).Hex()
-			return id, err == nil
+			id := insertResult.InsertedID.(primitive.ObjectID)
+			return &id, err == nil
 		}
-		return "", false
+		return nil, false
 	}
 	catalog = new(models.CatalogDoc)
 	err = result.Decode(catalog)
 	if err != nil {
-		return "", false
+		return nil, false
 	}
-	catalogId := catalog.Id.Hex()
-	log.Info("catalog id is", zap.String("id", catalogId))
-	return catalogId, true
+	catalogId := catalog.Id
+	log.Info("catalog id is", zap.String("id", catalogId.Hex()))
+	return &catalogId, true
 }
 
 // New collector
@@ -226,7 +226,8 @@ func parsePageLinks(homeUrl string, collector *colly.Collector, urlChan chan<- *
 	handleError(collector.Request("GET", homeUrl, nil, ctx, nil))
 }
 
-func downloadArticle(collection *mongo.Collection, urlChan <-chan *models.ArticlePage, catalogId string, c *colly.Collector, zhConvertor sat.Dicter, client *redis.Client) {
+func downloadArticle(collection *mongo.Collection, urlChan <-chan *models.ArticlePage, catalogId *primitive.ObjectID,
+	c *colly.Collector, zhConvertor sat.Dicter, client *redis.Client) {
 	// load article page and get the content to save
 	// .articleList>.content>div
 	c.OnHTML(".articleList>.content>div:first-child", func(element *colly.HTMLElement) {
@@ -256,7 +257,7 @@ func downloadArticle(collection *mongo.Collection, urlChan <-chan *models.Articl
 
 		_, err = collection.InsertOne(context.TODO(), models.Article{
 			Name:       artPage.Name,
-			CatalogId:  catalogId,
+			CatalogId:  *catalogId,
 			Content:    content,
 			CreateDate: time.Now(),
 		})

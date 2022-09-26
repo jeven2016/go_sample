@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	dto2 "api/app/books/dto"
-	"api/app/books/entitie"
+	"api/app/books/entity"
 	"api/pkg/common"
 	"api/pkg/dto"
 	"api/pkg/global"
@@ -30,8 +30,8 @@ func NewArticleService(app *global.App) *ArticleService {
 	}
 }
 
-func (artSrv ArticleService) FindById(id string) (*entitie.Article, error) {
-	articleEntity := &entitie.Article{}
+func (artSrv ArticleService) FindById(id string) (*entity.Article, error) {
+	articleEntity := &entity.Article{}
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		artSrv.log.Warn("Invalid objectId", zap.String("id", id), zap.Error(err))
@@ -54,13 +54,19 @@ func (artSrv ArticleService) FindById(id string) (*entitie.Article, error) {
 }
 
 func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageRequest) (*dto2.ArticlePageResponse, error) {
-	var results = new([]*entitie.Article) // 分配空间返回地址
+	var results = new([]*entity.Article) // 分配空间返回地址
 	findOpt := options.Find()
 	findOpt.SetLimit(int64(pageRequest.PageSize))
 	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
 	findOpt.SetProjection(bson.M{"content": 0}) // 不包含content内容
 
-	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catalogId}, findOpt)
+	catlogBsonId, err := primitive.ObjectIDFromHex(catalogId)
+	if err != nil {
+		artSrv.log.Warn("Invalid objectId", zap.String("catalogId", catalogId), zap.Error(err))
+		return nil, err
+	}
+
+	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catlogBsonId}, findOpt)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +131,7 @@ func (artSrv *ArticleService) Search(pageRequest *dto2.PageRequest) (*dto2.Artic
 		artSrv.log.Warn("An error occurs while counting articles", zap.Error(err))
 		return nil, err
 	}
-	var results = new([]*entitie.Article) // 分配空间返回地址
+	var results = new([]*entity.Article) // 分配空间返回地址
 	err = cursor.All(context.TODO(), results)
 	if err != nil {
 		artSrv.log.Warn("An error occurs while converting articles", zap.Error(err))

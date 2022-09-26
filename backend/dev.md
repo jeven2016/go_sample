@@ -128,3 +128,11 @@ https://github.com/jedib0t/go-pretty
 
 https://github.com/jedib0t/go-pretty/blob/main/cmd/demo-progress/demo.go
 ```
+
+### starter sample
+https://github.com/zjtech/golang-starter
+依赖注入
+除了wire，Go的依赖注入框架还有Uber的dig和Facebook的inject，它们都是使用反射机制来实现运行时依赖注入(runtime dependency injection)，
+而wire则是采用代码生成的方式来达到编译时依赖注入(compile-time dependency injection)。
+使用反射带来的性能损失倒是其次，更重要的是反射使得代码难以追踪和调试（反射会令Ctrl+左键失效…）。而wire生成的代码是符合程序员常规使用习惯的代码，
+十分容易理解和调试。

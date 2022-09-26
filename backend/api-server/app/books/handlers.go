@@ -1,16 +1,18 @@
 package books
 
 import (
+	"errors"
+	"net/http"
+	"sync"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+
 	"api/app/books/dto"
-	"api/app/books/entitie"
+	"api/app/books/entity"
 	"api/app/books/service"
 	common "api/pkg/common"
 	"api/pkg/global"
-	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"net/http"
-	"sync"
 )
 
 var once sync.Once
@@ -26,15 +28,14 @@ func SetupServices(app *global.App) {
 }
 
 func ListCatalogs(context *gin.Context) {
-	catalogList, err := catalogService.List()
+	catalogResponse, err := catalogService.List()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
-			"payload": []entitie.BookCatalog{},
+			"payload": []entity.BookCatalog{},
 		})
 		return
 	}
-	list := catalogList
-	context.JSON(http.StatusOK, gin.H{"payload": list})
+	context.JSON(http.StatusOK, gin.H{"payload": catalogResponse})
 }
 
 func ListArticles(c *gin.Context) {
@@ -62,7 +63,7 @@ func ListArticles(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-//FindArticleById  根据id获取Article
+// FindArticleById  根据id获取Article
 func FindArticleById(c *gin.Context) {
 	articleId := c.Param("articleId")
 	articleEntity, err := articleService.FindById(articleId)

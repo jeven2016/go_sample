@@ -1,14 +1,17 @@
 package service
 
 import (
-	"api/app/books/dto"
-	"api/app/books/entitie"
-	"api/pkg/global"
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
+
+	"api/app/books/dto"
+	"api/app/books/entity"
+	"api/pkg/clients"
+	"api/pkg/global"
 )
 
 type ICatalog interface {
@@ -18,40 +21,42 @@ type ICatalog interface {
 type CatalogService struct {
 	catalog *mongo.Collection
 	log     *zap.Logger
+	redis   *clients.RedisClient
 }
 
 func NewCatalogService(app *global.App) *CatalogService {
 	return &CatalogService{
 		catalog: app.MongoClient.Db.Collection("catalog"),
 		log:     app.Log,
+		redis:   app.RedisClient,
 	}
 }
 
 func (c *CatalogService) List() (*dto.CatalogListResponse, error) {
-	var results []*entitie.BookCatalog
+	// return from cache if it exists
+	redisResult := c.redis.Client.HSet(context.Background(), "catalogTree")
+	if redisResult.
+
+	var results = new([]*entity.BookCatalog)
 	findOpts := options.Find()
-	findOpts.SetLimit(15)
+	// findOpts.SetLimit(15)
 
 	cursor, err := c.catalog.Find(context.Background(), bson.M{}, findOpts)
-	defer cursor.Close(context.TODO())
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			c.log.Warn("An error occurs while cursor closing", zap.Error(err))
+		}
+	}(cursor, context.TODO())
+
 	if err != nil {
 		c.log.Warn("An error occurs while getting a list of catalogs", zap.Error(err))
 		return nil, err
 	}
 
-	for cursor.Next(context.TODO()) {
-		var catalog *entitie.BookCatalog
-		err := cursor.Decode(&catalog)
-		if err != nil {
-			c.log.Warn("An error occurs while decoding a book catalog", zap.Error(err))
-			return nil, err
-		}
-		results = append(results, catalog)
+	err = cursor.All(context.Background(), results)
+	if err != nil {
+		c.log.Warn("An error occurs while decoding a book catalog", zap.Error(err))
 	}
-
-	var catalogList = &dto.CatalogListResponse{
-		Count: int32(len(results)),
-		List:  results,
-	}
-	return catalogList, nil
+	return CatalogTree(*results), nil
 }
