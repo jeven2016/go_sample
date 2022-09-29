@@ -60,10 +60,11 @@ func addRootTreeNodes(root *dto.CatalogListResponse, rootNodes []*entity.BookCat
 }
 
 func sort(array []*dto.CatalogResponse) {
-	err := slice.SortByField(array, "Order", "asc")
-	if err != nil {
-		panic(err)
-	}
+	// 数组内指针类型，无法排序
+	// err := slice.SortByField(array, "Order", "asc")
+	// if err != nil {
+	// 	panic(err)
+	// }
 }
 
 func getRootNodes(catalogs []*entity.BookCatalog) []*entity.BookCatalog {
@@ -77,13 +78,15 @@ func getRootNodes(catalogs []*entity.BookCatalog) []*entity.BookCatalog {
 
 func toCatalogResponse(node *entity.BookCatalog) *dto.CatalogResponse {
 	var treeNode = &dto.CatalogResponse{
-		Id:           node.Id.Hex(),
-		ParentId:     node.ParentId.Hex(),
-		Name:         node.Name,
+		Id:       node.Id.Hex(),
+		ParentId: node.ParentId.Hex(),
+		// Name:         node.Name,
+		Name:         "书籍测试",
 		Order:        node.Order,
 		ArticleCount: node.ArticleCount,
-		Description:  node.Description,
-		Children:     []*dto.CatalogResponse{},
+		// Description:  node.Description,
+		Description: "自由自在的书籍测试",
+		Children:    []*dto.CatalogResponse{},
 	}
 	return treeNode
 }

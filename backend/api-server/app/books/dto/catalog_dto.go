@@ -1,7 +1,7 @@
 package dto
 
 type CatalogListResponse struct {
-	List []*CatalogResponse
+	List []*CatalogResponse `json:"list"`
 }
 
 type CatalogResponse struct {

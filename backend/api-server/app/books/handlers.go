@@ -9,7 +9,6 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	"api/app/books/dto"
-	"api/app/books/entity"
 	"api/app/books/service"
 	common "api/pkg/common"
 	"api/pkg/global"
@@ -30,12 +29,10 @@ func SetupServices(app *global.App) {
 func ListCatalogs(context *gin.Context) {
 	catalogResponse, err := catalogService.List()
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
-			"payload": []entity.BookCatalog{},
-		})
+		context.Status(http.StatusInternalServerError)
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"payload": catalogResponse})
+	context.JSON(http.StatusOK, catalogResponse)
 }
 
 func ListArticles(c *gin.Context) {

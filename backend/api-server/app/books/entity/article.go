@@ -7,9 +7,9 @@ import (
 )
 
 type Article struct {
-	Id         primitive.ObjectID `bson:"_id,omitempty" json:"id"` // omitempty会自动生成
-	Name       string             `bson:"name" json:"name"`
-	CatalogId  primitive.ObjectID `bson:"catalogId" json:"catalogId"`
-	Content    string             `bson:"content,omitempty" json:"content"`
-	CreateDate time.Time          `bson:"createDate" json:"createDate"`
+	Id primitive.ObjectID `bson:"_id,omitempty" json:"id"` // omitempty会自动生成
+	// Name       string             `bson:"name" json:"name"`
+	CatalogId primitive.ObjectID `bson:"catalogId" json:"catalogId"`
+	// Content    string             `bson:"content,omitempty" json:"content"`
+	CreateDate time.Time `bson:"createDate" json:"createDate"`
 }

@@ -60,13 +60,13 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageReque
 	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
 	findOpt.SetProjection(bson.M{"content": 0}) // 不包含content内容
 
-	catlogBsonId, err := primitive.ObjectIDFromHex(catalogId)
+	catalogBsonId, err := primitive.ObjectIDFromHex(catalogId)
 	if err != nil {
 		artSrv.log.Warn("Invalid objectId", zap.String("catalogId", catalogId), zap.Error(err))
 		return nil, err
 	}
 
-	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catlogBsonId}, findOpt)
+	cursor, err := artSrv.article.Find(context.TODO(), bson.M{"catalogId": catalogBsonId}, findOpt)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageReque
 
 	// 查询总条数
 	countOptions := &options.CountOptions{}
-	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"catalogId": catalogId}, countOptions)
+	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"catalogId": catalogBsonId}, countOptions)
 	if err != nil {
 		artSrv.log.Warn("An error occurs while counting articles", zap.Error(err))
 		return nil, err
