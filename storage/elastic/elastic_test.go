@@ -3,6 +3,7 @@ package elastic
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -57,8 +58,44 @@ func TestSimpleCase(t *testing.T) {
 	handleError(err)
 	log.Println("version=", elasticsearch.Version)
 
-	createMapping(client)
-	InserArticle(client)
+	// createMapping(client)
+	// InserArticle(client)
+	QueryArticle(client)
+}
+
+// https://www.jianshu.com/p/075c0ed51053
+func QueryArticle(client *elasticsearch.Client) {
+	var buf bytes.Buffer
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match": map[string]interface{}{
+				"name":    "事务",
+				"content": "事务",
+			},
+		},
+		"highlight": map[string]interface{}{
+			"pre_tags":  []string{"<font color='red'>"},
+			"post_tags": []string{"</font>"},
+			"fields": map[string]interface{}{
+				"name": map[string]interface{}{},
+			},
+		},
+	}
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		panic(err)
+	}
+
+	res, err := client.Search(client.Search.WithContext(context.Background()),
+		client.Search.WithIndex("article"),
+		client.Search.WithBody(&buf),
+		client.Search.WithTrackTotalHits(true),
+		client.Search.WithPretty())
+	if err != nil {
+		panic(err)
+		return
+	}
+	defer res.Body.Close()
+	fmt.Println(res.String())
 }
 
 func createMapping(client *elasticsearch.Client) {

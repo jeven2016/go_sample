@@ -2,7 +2,7 @@
   "mappings": {
     "properties": {
       "catalogId": {
-        "type": "string",
+        "type": "text",
         "enabled": false
       },
       "content": {

@@ -1,11 +1,13 @@
 package clients
 
 import (
-	"api/pkg/common"
 	"context"
+	"time"
+
 	"github.com/go-redis/redis/v9"
 	"go.uber.org/zap"
-	"time"
+
+	"api/pkg/common"
 )
 
 type RedisClient struct {
@@ -34,3 +36,9 @@ func (c *RedisClient) StartInit() error {
 	c.Client = client
 	return nil
 }
+
+// func (c *RedisClient) GetList(key string) (any, error) {
+//
+// 	lRange := c.Client.LRange(context.Background(), key, 0, -1)
+//
+// }

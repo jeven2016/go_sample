@@ -19,10 +19,6 @@ import (
 	"api/pkg/global"
 )
 
-type ICatalog interface {
-	insert()
-}
-
 type CatalogService struct {
 	catalog *mongo.Collection
 	log     *zap.Logger

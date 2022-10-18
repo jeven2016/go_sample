@@ -13,6 +13,7 @@ import (
 
 	dto2 "api/app/books/dto"
 	"api/app/books/entity"
+	"api/pkg/clients"
 	"api/pkg/common"
 	"api/pkg/dto"
 	"api/pkg/global"
@@ -21,12 +22,14 @@ import (
 type ArticleService struct {
 	article *mongo.Collection
 	log     *zap.Logger
+	redis   *clients.RedisClient
 }
 
 func NewArticleService(app *global.App) *ArticleService {
 	return &ArticleService{
 		article: app.MongoClient.Db.Collection("article"),
 		log:     app.Log,
+		redis:   app.RedisClient,
 	}
 }
 
@@ -114,10 +117,16 @@ func (artSrv *ArticleService) List(catalogId string, pageRequest *dto2.PageReque
 }
 
 func (artSrv *ArticleService) Search(pageRequest *dto2.PageRequest) (*dto2.ArticlePageResponse, error) {
+	var pageSize = pageRequest.PageSize
+	var page = pageRequest.Page
+
+	// var redisKey = fmt.Sprintf(book_common.KEY_ARTICLE_PAGE, page, pageSize)
+	// cacheList, err := artSrv.redis.GetList(redisKey)
+
 	// options.
 	findOpt := options.Find()
-	findOpt.SetLimit(int64(pageRequest.PageSize))
-	findOpt.SetSkip(int64((pageRequest.Page - 1) * pageRequest.PageSize))
+	findOpt.SetLimit(int64(pageSize))
+	findOpt.SetSkip(int64((page - 1) * pageRequest.PageSize))
 	findOpt.SetProjection(bson.M{"content": 0})
 
 	count, err := artSrv.article.CountDocuments(context.TODO(), bson.M{"$text": bson.M{"$search": pageRequest.Search}})
