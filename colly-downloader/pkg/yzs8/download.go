@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -34,6 +35,7 @@ var log = initLog()
 
 var waitIndex = atomic.NewInt32(0)
 
+// Start 爬取不同规则的页面，使用不同的collector，在onError中进行重试
 func Start() {
 	// go func() {
 	// 	wg.Wait()
@@ -63,7 +65,7 @@ func Start() {
 	}
 
 	collector := newCollector()
-	homeUrl := "--"
+	homeUrl := "http://test996.com"
 	baseUrl = getBaseUri(homeUrl)
 
 	go parsePageLinks(homeUrl, collector, articlesChan, zhConvertor, redis)
@@ -133,11 +135,41 @@ func newCollector() *colly.Collector {
 	c.SetRequestTimeout(50 * time.Second)
 	c.WithTransport(&http.Transport{
 		DisableKeepAlives: true, // Colly uses HTTP keep-alive to enhance scraping speed
+		DialContext: (&net.Dialer{
+			Timeout:   90 * time.Second,
+			KeepAlive: 90 * time.Second,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   90 * time.Second,
+		ExpectContinueTimeout: 90 * time.Second,
 	})
+
+	// 对于匹配的域名(当前配置为任何域名),将请求并发数配置为2
+	// 通过测试发现,RandomDelay参数对于同步模式也生效
+	if err := c.Limit(&colly.LimitRule{
+		// glob模式匹配域名
+		// DomainGlob: ,
+
+		// 匹配到的域名的并发请求数
+		Parallelism: 5,
+		// 在发起一个新请求时的随机等待时间
+		RandomDelay: time.Duration(500) * time.Millisecond,
+	}); err != nil {
+		log.Error("生成一个collector对象, 限速配置失败", zap.Error(err))
+	}
+
+	// 是否允许重复请求相同url
+	c.AllowURLRevisit = false
+	c.Async = false
+	c.DetectCharset = true
 
 	// Set error handler
 	c.OnError(func(r *colly.Response, err error) {
+		// r.Request.Retry()
 		fmt.Println("[Request URL]:", r.StatusCode, " ", r.Request.URL, "failed with response:", r, "\nError:", err)
+		err = r.Request.Retry()
+		handleError(err)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -295,6 +327,7 @@ func downloadArticle(collection *mongo.Collection, urlChan <-chan *models.Articl
 		ctx.Put("articlePage", artPage)
 		if err := c.Request("GET", artPage.Url, nil, ctx, nil); err != nil {
 			handleError(err)
+
 		}
 	}
 }

@@ -9,8 +9,8 @@ import (
 func main() {
 
 	runtime.GOMAXPROCS(4)
-	// yzs8.Start()
+	yzs8.Start()
 
-	yzs8.Convert()
+	// yzs8.Convert()
 	select {}
 }

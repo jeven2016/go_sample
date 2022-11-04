@@ -212,7 +212,7 @@ func ensureDirectory(config *common.Config, logger *zap.Logger) (string, error) 
 }
 
 func directoryExists(config *common.Config, repository string) (string, bool) {
-	dir := filepath.Join(config.General.AssetsDirectory, repository)
+	dir := filepath.Join(config.Nexus.AssetsDirectory, repository)
 	exists := fileutil.IsExist(dir)
 	return dir, exists
 }

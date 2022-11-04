@@ -28,15 +28,14 @@ func (n *NexusUploader) Upload() {
 }
 
 func (n *NexusUploader) GetPackagePath(config *common.Config, metaData *common.AssetMetaData) string {
-	return filepath.Join(config.General.AssetsDirectory, config.Nexus.Repository, genFileName(metaData.Path))
+	return filepath.Join(config.Jfrog.AssetsDirectory, genFileName(metaData.Path))
 }
 
 func (n *NexusUploader) LoadJsonFiles() {
 	defer close(n.AssetChan)
 
-	directory := n.Config.General.AssetsDirectory
-	nexusRepo := n.Config.Nexus.Repository
-	files, err := filepath.Glob(filepath.Join(directory, nexusRepo, "*.json"))
+	directory := n.Config.Jfrog.AssetsDirectory
+	files, err := filepath.Glob(filepath.Join(directory, "*.json"))
 	if err != nil {
 		n.Logger.Error("failed to load meta data(.json)", zap.String("director", directory),
 			zap.Error(err))
@@ -68,4 +67,5 @@ func (n *NexusUploader) LoadJsonFiles() {
 			n.AssetChan <- metaData
 		}(jsonPath)
 	}
+	n.Logger.Info("all jsons files loaded")
 }

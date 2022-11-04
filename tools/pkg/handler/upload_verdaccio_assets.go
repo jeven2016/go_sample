@@ -32,7 +32,7 @@ func (n *VerdaccioUploader) Upload() {
 }
 
 func (n *VerdaccioUploader) GetPackagePath(config *common.Config, metaData *common.AssetMetaData) string {
-	return filepath.Join(config.General.AssetsDirectory, config.Nexus.Repository, genFileName(metaData.Path))
+	return filepath.Join(config.Verdaccio.Storage, genFileName(metaData.Path))
 }
 
 func (n *VerdaccioUploader) LoadJsonFiles() {
