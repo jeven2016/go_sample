@@ -1,7 +1,7 @@
 ### curl nexus repository
 # curl -u admin:1 -X GET 'http://localhost:8081/service/rest/v1/components?repository=npm-proxy'
-GET http://localhost:8081/service/rest/v1/components?repository=npm-proxy
-Authorization: Basic admin 1
+GET http://localhost:8081/service/rest/v1/components?repository=go-group
+#Authorization: Basic admin 1
 
 ### nexus pagination
 # curl -u admin:1 -X GET 'http://localhost:8081/service/rest/v1/components?repository=npm-proxy&continuationToken=40292acdebc01b839849abfda572cf35'

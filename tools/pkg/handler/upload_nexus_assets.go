@@ -46,26 +46,24 @@ func (n *NexusUploader) LoadJsonFiles() {
 		n.Logger.Warn("no json metadata file found in this directory", zap.String("directory", directory))
 		return
 	}
-	for _, jsonPath := range files {
-		go func(jp string) {
-			jsonString, err := fileutil.ReadFileToString(jp)
-			if err != nil {
-				n.Logger.Warn("failed to load json file", zap.String("file", jp), zap.Error(err))
-				return
-			}
+	for _, jp := range files {
+		jsonString, err := fileutil.ReadFileToString(jp)
+		if err != nil {
+			n.Logger.Warn("failed to load json file", zap.String("file", jp), zap.Error(err))
+			return
+		}
 
-			var metaData common.AssetMetaData
-			err = json.Unmarshal([]byte(jsonString), &metaData)
-			if err != nil {
-				n.Logger.Warn("failed to unmarshal json file",
-					zap.String("file", jp),
-					zap.String("json", jsonString),
-					zap.Error(err))
-				return
-			}
+		var metaData common.AssetMetaData
+		err = json.Unmarshal([]byte(jsonString), &metaData)
+		if err != nil {
+			n.Logger.Warn("failed to unmarshal json file",
+				zap.String("file", jp),
+				zap.String("json", jsonString),
+				zap.Error(err))
+			return
+		}
 
-			n.AssetChan <- metaData
-		}(jsonPath)
+		n.AssetChan <- metaData
 	}
 	n.Logger.Info("all jsons files loaded")
 }

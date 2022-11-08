@@ -3,7 +3,9 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -29,39 +31,46 @@ var client *resty.Client
 func Download(ctx context.Context) {
 	config := ctx.Value("config").(*common.Config)
 	logger := ctx.Value("logger").(*zap.Logger)
+
+	baseUrl, repository := getBaseUrlAndRepository(config.Nexus)
+	ctx = context.WithValue(ctx, "repository", repository)
+	ctx = context.WithValue(ctx, "baseUrl", baseUrl)
+
 	var assetsChan = make(chan common.Item, config.General.QueueSize)
 
-	directory, err := ensureDirectory(config, logger)
+	directory, err := ensureDirectory(config, logger, ctx)
 	if err != nil {
 		return
 	}
 
-	go parsePages(assetsChan, config, logger)
+	go parsePages(assetsChan, config, logger, ctx)
 
 	for i := 0; i < config.General.UploadTasks; i++ {
-		go downloadAssets(directory, assetsChan, config, logger)
+		go downloadAssets(directory, assetsChan, config, logger, ctx)
 	}
 }
 
-func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.Logger) {
-	nexusCfg := config.Nexus
-
+func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.Logger, ctx context.Context) {
+	// var nexusCfg = config.Nexus
+	logger.Info("Parsing the pages......")
 	var assetCount, pages = 0, 0
 	var continuationToken string // the token to fetch the next list of assets
 
 	defer func() {
 		close(itemChan)
 		logger.Info("Finished for parsing all pages for this repository",
-			zap.String("repository", nexusCfg.Repository),
 			zap.Int("assetsToDownload", assetCount),
 			zap.Int("pageCount", pages))
 	}()
+
+	repository := getRepositoryName(ctx)
+	baseUrl := ctx.Value("baseUrl").(string)
 
 	for {
 		if pages > 0 && len(continuationToken) == 0 {
 			break
 		}
-		url := makeUrl(nexusCfg, continuationToken)
+		url := makeUrl(baseUrl, repository, continuationToken)
 
 		res, err := restyClient(config.General.UploadTimeout).
 			R().
@@ -69,15 +78,17 @@ func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.
 			Get(url)
 		if err != nil {
 			logger.Warn("failed to get list of components",
-				zap.String("repository", nexusCfg.Repository),
+				zap.String("repository", repository),
 				zap.Error(err))
 		}
 
 		var assets = &common.Assets{}
-		err = json.Unmarshal(res.Body(), assets)
+		var resp = res.Body()
+		err = json.Unmarshal(resp, assets)
 		if err != nil {
 			logger.Warn("failed to convert json string to assets data",
-				zap.String("repository", nexusCfg.Repository),
+				zap.String("repository", repository),
+				zap.String("response", convertor.ToString(resp)),
 				zap.Error(err))
 		}
 
@@ -97,20 +108,34 @@ func parsePages(itemChan chan<- common.Item, config *common.Config, logger *zap.
 		}
 
 		logger.Info("Completed for parsing this pages",
-			zap.String("repository", nexusCfg.Repository),
+			zap.String("repository", repository),
 			zap.Int("page", pages),
 			zap.Int("currentAssetCount", assetCount))
 	}
 
 }
 
-func makeUrl(nexusCfg common.Nexus, continuationToken string) string {
-	if len(nexusCfg.BaseUrl) == 0 {
-		panic("the baseUrl of nexus is mandatory, you should define it in config file")
+func getBaseUrlAndRepository(nexusCfg common.Nexus) (string, string) {
+	if len(nexusCfg.RepositoryUrl) == 0 {
+		panic("the baseUrl of nexus is required, you should define it in config file")
+	}
+	result, err := url.Parse(nexusCfg.RepositoryUrl)
+	if err != nil {
+		panic("Invalid repository url provided: " + nexusCfg.RepositoryUrl)
 	}
 
+	baseUrl := fmt.Sprintf("%s://%s", result.Scheme, result.Host)
+
+	// get the repository name from the url
+	var pureUrl = strings.TrimRight(result.Path, urlSeparator)
+	var repository = pureUrl[strings.LastIndex(pureUrl, "/")+1:]
+
+	return baseUrl, repository
+}
+
+func makeUrl(baseUrl string, repository string, continuationToken string) string {
 	// http://localhost:8081/service/rest/v1/components?repository=npm-proxy
-	var url = strings.TrimRight(nexusCfg.BaseUrl, urlSeparator) + "/service/rest/v1/components?repository=" + nexusCfg.Repository
+	var url = baseUrl + "/service/rest/v1/components?repository=" + repository
 	if continuationToken != "" {
 		url += "&continuationToken=" + continuationToken
 	}
@@ -124,11 +149,11 @@ func restyClient(timeout int) *resty.Client {
 	return client
 }
 
-func downloadAssets(directory string, itemChan <-chan common.Item, config *common.Config, logger *zap.Logger) {
-	logger.Info("waiting for downloading assets", zap.String("repository", config.Nexus.Repository))
+func downloadAssets(directory string, itemChan <-chan common.Item, config *common.Config, logger *zap.Logger, ctx context.Context) {
+	logger.Info("waiting for downloading assets", zap.String("repository", getRepositoryName(ctx)))
 	for item := range itemChan {
 		for _, asset := range *item.Assets {
-			downloadAsset(asset, directory, logger, config)
+			downloadAsset(asset, directory, logger, config, ctx)
 		}
 	}
 }
@@ -145,8 +170,9 @@ func genFileName(filePath string) string {
 	return fileName
 }
 
-func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, config *common.Config) {
+func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, config *common.Config, ctx context.Context) {
 	fileName := genFileName(asset.Path)
+	repo := getRepositoryName(ctx)
 
 	if fileutil.IsExist(filepath.Join(directory, fileName)) {
 		logger.Info("asset already downloaded", zap.String("file", fileName))
@@ -158,7 +184,7 @@ func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, con
 
 	if err != nil {
 		logger.Error("failed to write meta data",
-			zap.String("repository", config.Nexus.Repository),
+			zap.String("repository", repo),
 			zap.String("url", asset.Npm.Name),
 			zap.Error(err))
 		return
@@ -168,12 +194,12 @@ func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, con
 	_, err = restyClient(config.General.UploadTimeout).R().SetOutput(filepath.Join(directory, fileName)).Get(asset.DownloadUrl)
 	if err != nil {
 		logger.Error("failed to handler ast",
-			zap.String("repository", config.Nexus.Repository),
+			zap.String("repository", repo),
 			zap.String("url", asset.DownloadUrl))
 		return
 	}
 
-	logger.Info("ast downloaded", zap.String("repository", config.Nexus.Repository),
+	logger.Info("ast downloaded", zap.String("repository", repo),
 		zap.String("path", asset.Path))
 }
 
@@ -188,8 +214,8 @@ func writeMedata(asset common.Asset, directory string, fileName string, pureName
 	return err
 }
 
-func ensureDirectory(config *common.Config, logger *zap.Logger) (string, error) {
-	dir, exists := directoryExists(config, config.Nexus.Repository)
+func ensureDirectory(config *common.Config, logger *zap.Logger, ctx context.Context) (string, error) {
+	dir, exists := directoryExists(config, getRepositoryName(ctx))
 	if !exists {
 		abs, err := filepath.Abs(dir)
 		if err != nil {
@@ -209,6 +235,10 @@ func ensureDirectory(config *common.Config, logger *zap.Logger) (string, error) 
 		logger.Info("Directory is created", zap.String("directory", dir))
 	}
 	return dir, nil
+}
+
+func getRepositoryName(ctx context.Context) string {
+	return ctx.Value("repository").(string)
 }
 
 func directoryExists(config *common.Config, repository string) (string, bool) {

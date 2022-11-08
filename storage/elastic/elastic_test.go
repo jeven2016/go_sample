@@ -17,6 +17,10 @@ import (
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/elastic/go-elasticsearch/v7/estransport"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.uber.org/zap"
 )
 
 type Article struct {
@@ -58,9 +62,9 @@ func TestSimpleCase(t *testing.T) {
 	handleError(err)
 	log.Println("version=", elasticsearch.Version)
 
-	// createMapping(client)
+	createMapping(client)
 	// InserArticle(client)
-	QueryArticle(client)
+	// QueryArticle(client)
 }
 
 // https://www.jianshu.com/p/075c0ed51053
@@ -136,6 +140,10 @@ func createMapping(client *elasticsearch.Client) {
 
 }
 
+func InsertFromMongo() {
+
+}
+
 func InserArticle(client *elasticsearch.Client) {
 	var article = &Article{
 		Name: "JPA的事务注解@Transactional使用总结",
@@ -159,6 +167,32 @@ func InserArticle(client *elasticsearch.Client) {
 		println("201 Created")
 	}
 
+}
+
+func GetMongoClient() error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 连接MongoDB
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(c.Config.Uri))
+	if err != nil {
+		c.Log.Error("Cannot connect to mongodb", zap.Error(err))
+		return err
+	}
+
+	// 检测MongoDB是否连接成功
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+		c.Log.Error("Failed to Ping for mongodb", zap.Error(err))
+		return err
+	}
+
+	// 初始化全局Db
+	db := client.Database(c.Config.Database)
+
+	c.Db = db
+	c.Client = client
+	return err
 }
 
 func handleError(err error) {

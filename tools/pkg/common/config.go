@@ -19,9 +19,7 @@ type General struct {
 }
 
 type Nexus struct {
-	BaseUrl         string `mapstructure:"base_url,omitempty"`
-	Repository      string `mapstructure:"repository,omitempty"`
-	DownloadAssets  bool   `mapstructure:"download_assets,omitempty"`
+	RepositoryUrl   string `mapstructure:"repository,omitempty"`
 	Username        string `mapstructure:"username,omitempty"`
 	Password        string `mapstructure:"password,omitempty"`
 	AssetsDirectory string `mapstructure:"assets_directory,omitempty"`
