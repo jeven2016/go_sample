@@ -80,11 +80,11 @@ func toCatalogResponse(node *entity.BookCatalog) *dto.CatalogResponse {
 	var treeNode = &dto.CatalogResponse{
 		Id:       node.Id.Hex(),
 		ParentId: node.ParentId.Hex(),
-		Name:     node.Name,
+		// Name:     node.Name,
 		// Name:         "书籍测试",
 		Order:        node.Order,
 		ArticleCount: node.ArticleCount,
-		Description:  node.Description,
+		// Description:  node.Description,
 		// Description: "自由自在的书籍测试",
 		Children: []*dto.CatalogResponse{},
 	}

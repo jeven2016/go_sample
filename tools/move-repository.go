@@ -13,8 +13,8 @@ import (
 	"move-repository/pkg/handler"
 )
 
-var configPath *string = flag.StringP("config", "c", "/home/jujucom/Desktop/workspace/projects/go_samples/tools/conf/conf.ini", "The path of config file")
-var command *string = flag.StringP("command", "m", "upload", "The supported command: download, upload ")
+var configPath *string = flag.StringP("config", "c", "", "The path of config file")
+var command *string = flag.StringP("command", "m", "", "The supported command: download, upload ")
 var repoType *string = flag.StringP("source-repository-type", "t", "nexus", "The type of repository that has packages stored and need to upload into JFrog, it can only be: nexus or verdaccio")
 
 // supported repositories

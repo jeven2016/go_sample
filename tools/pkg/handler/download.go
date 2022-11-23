@@ -175,7 +175,7 @@ func downloadAsset(asset common.Asset, directory string, logger *zap.Logger, con
 	repo := getRepositoryName(ctx)
 
 	if fileutil.IsExist(filepath.Join(directory, fileName)) {
-		logger.Info("asset already downloaded", zap.String("file", fileName))
+		logger.Info("Ignored(asset exists)", zap.String("file", fileName))
 		return
 	}
 
