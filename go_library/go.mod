@@ -1,6 +1,6 @@
 module samples
 
-go 1.15
+go 1.18
 
 require (
 	github.com/duke-git/lancet/v2 v2.0.7 // indirect

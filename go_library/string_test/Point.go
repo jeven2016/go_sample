@@ -1,4 +1,4 @@
-package strings_test
+package string_test
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ func PointTst() {
 	}
 
 	var intVal2 int = 333
-	log.Printf("val begin=%p", intVal2)
+	//log.Printf("val begin=%p", intVal2)
 	other(intVal2)
 }
 

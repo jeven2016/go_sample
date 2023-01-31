@@ -3,14 +3,23 @@ package reflect_samples
 import (
 	"fmt"
 	"reflect"
+	"testing"
 )
+
+type MyInter interface {
+	GetName() string
+}
 
 type MyStruct struct {
 	Name string
 	Age  int32 `type:"int" author:"wang" `
 }
 
-func ReflectType() {
+func (m *MyStruct) GetName() string {
+	return m.Name
+}
+
+func TestReflectType(t *testing.T) {
 	ptr := &MyStruct{Name: "who", Age: 33}
 
 	//名称
@@ -36,9 +45,16 @@ func ReflectType() {
 	//获取字段属性，以及Tag
 	if field, exists := ptrType.FieldByName("Age"); exists {
 		tag := field.Tag.Get("author")
-		print("Age tag :", tag)
+		println("Age tag :", tag)
 	}
 
+	var myInter MyInter = ptr
+	var newMyStruct = myInter.(*MyStruct)
+	of := reflect.ValueOf(*newMyStruct)
+	age := of.FieldByName("Age").Int()
+	name2 := of.FieldByName("Name").String()
+	println("age:", age)
+	println("name2:", name2)
 }
 
 func printType(val interface{}) {
