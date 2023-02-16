@@ -21,7 +21,7 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://jeven:1@localhost:5672/")
+	conn, err := amqp.Dial("amqp://admin:admin@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -47,17 +47,20 @@ func main() {
 	err = ch.QueueBind(queueName, routingKey, exchangeName, false, nil)
 	failOnError(err, "Failed to bind exchange and queue")
 
-	var body = "Hello World!~~~~~~~~" + strconv.Itoa(rand.Int())
-	err = ch.PublishWithContext(
-		context.TODO(),
-		exchangeName, // exchange
-		routingKey,   // routing key
-		false,        // mandatory
-		false,        // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	failOnError(err, "Failed to publish a message")
-	log.Printf(" [x] Sent %s\n", body)
+	for i := 0; i < 1000; i++ {
+		var body = "Hello World!~~~~~~~~" + strconv.Itoa(rand.Int())
+		err = ch.PublishWithContext(
+			context.TODO(),
+			exchangeName, // exchange
+			routingKey,   // routing key
+			false,        // mandatory
+			false,        // immediate
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte(body),
+			})
+		failOnError(err, "Failed to publish a message")
+		log.Printf(" [x] Sent %s\n", body)
+	}
+
 }
