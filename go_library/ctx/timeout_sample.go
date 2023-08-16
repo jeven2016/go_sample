@@ -60,7 +60,7 @@ func WithTimeout() {
 	// 运行九秒后停止生产和消费
 	time.Sleep(5 * time.Second)
 	// cancelFunc()
-	// println("cancel strings_test now")
+	// println("cancel string_test now")
 
 	// 等待所有的goroutine退出
 	wgr.Wait()

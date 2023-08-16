@@ -1,13 +1,11 @@
-package strings_test
+package string_test
 
 import (
 	"fmt"
-
-	"samples/io_samples"
 )
 
 func init() {
-	println("strings_test.go_sample init()")
+	println("string_test.go_sample init()")
 }
 
 // 闭包
@@ -117,7 +115,7 @@ func main() {
 	// lock.MutexSample()
 	// lock.RwLock()
 
-	io_samples.Filepath_func()
+	//io_samples.Filepath_func()
 
 	// io_samples.Ioutil_sample()
 
