@@ -45,7 +45,8 @@ func WithCancel() {
 	wg.Add(2)
 
 	// 创建一个可以取消的context
-	ctx, cancelFunc := context.WithCancel(context.Background())
+	ctx1, _ := context.WithCancel(context.Background())
+	ctx, cancelFunc := context.WithCancel(ctx1)
 
 	go func(ctx context.Context) {
 		defer wg.Done()
@@ -64,7 +65,7 @@ func WithCancel() {
 				time.Sleep(1 * time.Second)
 			}
 		}
-	}(ctx)
+	}(ctx1)
 
 	go func(ctx context.Context) {
 		defer wg.Done()

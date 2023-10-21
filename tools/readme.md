@@ -33,4 +33,6 @@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build move-repository.go
 # Windows
 CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build move-repository.go
 
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build cmd/commic/zip-folder.go 
+
 ```

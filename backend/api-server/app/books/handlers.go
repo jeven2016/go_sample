@@ -5,13 +5,11 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-
 	"api/app/books/dto"
 	"api/app/books/service"
 	common "api/pkg/common"
 	"api/pkg/global"
+	"github.com/gin-gonic/gin"
 )
 
 var once sync.Once
@@ -62,7 +60,7 @@ func ListArticles(c *gin.Context) {
 
 // FindArticleById  根据id获取Article
 func FindArticleById(c *gin.Context) {
-	articleId := c.Param("articleId")
+	articleId := c.c("articleId")
 	articleEntity, err := articleService.FindById(articleId)
 	if err != nil {
 		if errors.Is(err, common.NotFound) {

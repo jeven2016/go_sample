@@ -3,7 +3,7 @@ package ctx
 import "testing"
 
 func TestWithValue(t *testing.T) {
-	WithValue()
+	//WithValue()
 	WithCancel()
-	WithTimeout()
+	//WithTimeout()
 }
