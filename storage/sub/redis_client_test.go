@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"testing"
 	"time"
 
-	"github.com/go-redis/redis/v9"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -160,6 +160,48 @@ func TestList(t *testing.T) {
 
 	println("val=", r)
 
+}
+
+func TestPubSub(t *testing.T) {
+	cli := client()
+	defer cli.Close()
+
+	go func() {
+		var index int
+
+		tick := time.NewTicker(3 * time.Second)
+
+		for t := range tick.C {
+			if index > 5 {
+				tick.Stop()
+				break
+			}
+			err := cli.Publish(context.Background(), "source", PersonHash{
+				Name: fmt.Sprintf("wang%v", index),
+				Desc: "desc",
+			}).Err()
+			if err != nil {
+				println(err)
+				return
+			}
+			print(t.String())
+			println("sent a message")
+			index++
+		}
+	}()
+
+	rd := client()
+	defer rd.Close()
+	go func() {
+		subscribe := rd.Subscribe(context.Background(), "dest")
+		ch := subscribe.Channel()
+
+		for msg := range ch {
+			fmt.Println("got a message", msg.Channel, msg.Payload)
+		}
+	}()
+
+	select {}
 }
 
 func handle(err error, msg string) {
